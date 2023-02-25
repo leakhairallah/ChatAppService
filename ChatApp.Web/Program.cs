@@ -1,3 +1,4 @@
+using Azure.Storage.Blobs;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Options;
 using ChatApp.Web.Configuration;
@@ -14,14 +15,21 @@ builder.Services.AddSwaggerGen();
 
 // Add Configuration
 builder.Services.Configure<CosmosSettings>(builder.Configuration.GetSection("Cosmos"));
+builder.Services.Configure<BlobSettings>(builder.Configuration.GetSection("Blob"));
 
 // Add Services
-builder.Services.AddSingleton<IProfileStore, CosmosProfileStore>();
+builder.Services.AddSingleton<IProfileStore, ProfileStore>();
 builder.Services.AddSingleton(sp =>
 {
     var cosmosOptions = sp.GetRequiredService<IOptions<CosmosSettings>>();
     return new CosmosClient(cosmosOptions.Value.ConnectionString);
 });
+builder.Services.AddSingleton(sp =>
+{
+    var blobOptions = sp.GetRequiredService<IOptions<BlobSettings>>();
+    return new BlobContainerClient(blobOptions.Value.ConnectionString, "profileimages");
+});
+
 
 
 var app = builder.Build();
