@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "U5hEFlDAnTFUgv/135IPRoGwX1OaNQ/nClkc1MXGOJ8/WvQLQqlpnhvGQBGQgyfYFUJrD7LAbIl73boyyy4YOQ==",
+  "dgSpecHash": "VxB8Z2omFXUj/Hca4xa1DjJaIdim5psPvUj1VbE51jEAFn7tkcl5N3DIsKxjSEHz4rzdTAPTjL44BeKpLq5A+g==",
   "success": true,
   "projectFilePath": "/Users/leakhairallah/Desktop/ChatAppService/ChatApp.Web/ChatApp.Web.csproj",
   "expectedPackageFiles": [
@@ -116,6 +116,7 @@
     "/Users/leakhairallah/.nuget/packages/system.xml.readerwriter/4.3.0/system.xml.readerwriter.4.3.0.nupkg.sha512",
     "/Users/leakhairallah/.nuget/packages/system.xml.xdocument/4.3.0/system.xml.xdocument.4.3.0.nupkg.sha512",
     "/Users/leakhairallah/.nuget/packages/system.xml.xmldocument/4.3.0/system.xml.xmldocument.4.3.0.nupkg.sha512",
+    "/Users/leakhairallah/.nuget/packages/windowsazure.storage/9.3.3/windowsazure.storage.9.3.3.nupkg.sha512",
     "/Users/leakhairallah/.nuget/packages/microsoft.netcore.app.ref/6.0.12/microsoft.netcore.app.ref.6.0.12.nupkg.sha512",
     "/Users/leakhairallah/.nuget/packages/microsoft.aspnetcore.app.ref/6.0.12/microsoft.aspnetcore.app.ref.6.0.12.nupkg.sha512",
     "/Users/leakhairallah/.nuget/packages/microsoft.netcore.app.host.osx-arm64/6.0.12/microsoft.netcore.app.host.osx-arm64.6.0.12.nupkg.sha512"

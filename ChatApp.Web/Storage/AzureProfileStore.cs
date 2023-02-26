@@ -1,4 +1,6 @@
+using System.IO.IsolatedStorage;
 using System.Net;
+using Azure;
 using Microsoft.Azure.Cosmos;
 using Azure.Storage.Blobs;
 using ChatApp.Web.Dtos;
@@ -33,7 +35,22 @@ public class ProfileStore : IProfileStore
         
         
         await CosmosContainer.UpsertItemAsync(ToEntity(profile));
+    }
 
+    public async Task UpsertProfilePicture(ProfilePicture profilePicture)
+    {
+        if (profilePicture == null || 
+            profilePicture.File.Length == 0)
+        {
+            throw new ArgumentException($"Invalid profile picture {profilePicture}", nameof(profilePicture));
+        }
+        
+        using var stream = new MemoryStream();
+        await profilePicture.File.CopyToAsync(stream);
+        
+        Guid imageId = Guid.NewGuid();
+
+        await _blobContainerClient.UploadBlobAsync(imageId.ToString(), stream);
     }
 
     public async Task<Profile?> GetProfile(string username)
@@ -53,6 +70,38 @@ public class ProfileStore : IProfileStore
         catch (CosmosException e)
         {
             if (e.StatusCode == HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+ 
+            throw;
+        }
+    }
+    
+    public async Task<byte[]?> GetProfilePicture(string username)
+    {
+        try
+        {
+            var entity = await CosmosContainer.ReadItemAsync<ProfileEntity>(
+                id: username,
+                partitionKey: new PartitionKey(username),
+                new ItemRequestOptions
+                {
+                    ConsistencyLevel = ConsistencyLevel.Session
+                }
+            );
+            
+            var response = await _blobContainerClient.GetBlobClient(ToProfile(entity).ProfilePictureId).DownloadAsync();
+
+            await using var memoryStream = new MemoryStream();
+            await response.Value.Content.CopyToAsync(memoryStream);
+            var bytes = memoryStream.ToArray();
+
+            return bytes;
+        }
+        catch (RequestFailedException e)
+        {
+            if (e.Status == 404)
             {
                 return null;
             }
