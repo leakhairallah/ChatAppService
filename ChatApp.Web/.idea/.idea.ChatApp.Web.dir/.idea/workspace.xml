@@ -6,22 +6,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8eb1369c-b740-4b44-8d84-3171638ae578" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/Controllers/ProfileController.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Dtos/UploadImageRequest.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Dtos/UploadImageResponse.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Dtos/ProfilePicture.cs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Storage/AzureProfileStore.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Storage/AzureProfileStore.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Storage/IProfile.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Storage/IProfile.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/ChatApp.Web.csproj.nuget.dgspec.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/ChatApp.Web.csproj.nuget.dgspec.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/ChatApp.Web.csproj.nuget.g.props" beforeDir="false" afterPath="$PROJECT_DIR$/obj/ChatApp.Web.csproj.nuget.g.props" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/ChatApp.Web.csproj.nuget.g.targets" beforeDir="false" afterPath="$PROJECT_DIR$/obj/ChatApp.Web.csproj.nuget.g.targets" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/net6.0/ChatApp.Web.GeneratedMSBuildEditorConfig.editorconfig" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net6.0/ChatApp.Web.GeneratedMSBuildEditorConfig.editorconfig" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/net6.0/ChatApp.Web.assets.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net6.0/ChatApp.Web.assets.cache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/Debug/net6.0/ChatApp.Web.csproj.AssemblyReference.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/Debug/net6.0/ChatApp.Web.csproj.AssemblyReference.cache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/project.assets.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/project.assets.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/project.nuget.cache" beforeDir="false" afterPath="$PROJECT_DIR$/obj/project.nuget.cache" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/project.packagespec.json" beforeDir="false" afterPath="$PROJECT_DIR$/obj/project.packagespec.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/obj/rider.project.restore.info" beforeDir="false" afterPath="$PROJECT_DIR$/obj/rider.project.restore.info" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.ChatApp.Web.dir/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.ChatApp.Web.dir/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dtos/UploadImageResponse.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Dtos/UploadImageResponse.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -98,7 +84,8 @@
       <option name="presentableId" value="Default" />
       <updated>1677408486226</updated>
       <workItem from="1677408488176" duration="3065000" />
-      <workItem from="1677525679969" duration="4626000" />
+      <workItem from="1677525679969" duration="4805000" />
+      <workItem from="1677536650888" duration="787000" />
     </task>
     <servers />
   </component>
