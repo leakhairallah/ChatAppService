@@ -37,7 +37,7 @@ public class ProfileStore : IProfileStore
         await CosmosContainer.UpsertItemAsync(ToEntity(profile));
     }
 
-    public async Task UpsertProfilePicture(ProfilePicture profilePicture)
+    public async Task<UploadImageResponse?> UpsertProfilePicture(UploadImageRequest profilePicture)
     {
         if (profilePicture == null || 
             profilePicture.File.Length == 0)
@@ -48,9 +48,11 @@ public class ProfileStore : IProfileStore
         using var stream = new MemoryStream();
         await profilePicture.File.CopyToAsync(stream);
         
-        Guid imageId = Guid.NewGuid();
+        string imageId = Guid.NewGuid().ToString();
 
-        await _blobContainerClient.UploadBlobAsync(imageId.ToString(), stream);
+        await _blobContainerClient.UploadBlobAsync(imageId, stream);
+        return new UploadImageResponse(imageId);
+        
     }
 
     public async Task<Profile?> GetProfile(string username)
