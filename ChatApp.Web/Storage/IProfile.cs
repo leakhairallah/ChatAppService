@@ -8,4 +8,5 @@ public interface IProfileStore
     Task<UploadImageResponse?> UpsertProfilePicture(UploadImageRequest picture);
     Task<Profile?> GetProfile(string username);
     Task<byte[]?> GetProfilePicture(string id);
+    Task DeleteProfile(string username);
 }

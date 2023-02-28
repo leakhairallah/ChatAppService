@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatApp.Web", "ChatApp.Web\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatApp.Web.Tests", "ChatApp.Web.Tests\ChatApp.Web.Tests.csproj", "{4EFD2B11-0694-4A9C-BEE1-6BFAC9083862}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatApp.Web.IntegrationTest", "ChatApp.Web.IntegrationTest\ChatApp.Web.IntegrationTest.csproj", "{35D64215-7217-4362-BC95-5ADD6F9CF894}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{4EFD2B11-0694-4A9C-BEE1-6BFAC9083862}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4EFD2B11-0694-4A9C-BEE1-6BFAC9083862}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4EFD2B11-0694-4A9C-BEE1-6BFAC9083862}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35D64215-7217-4362-BC95-5ADD6F9CF894}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35D64215-7217-4362-BC95-5ADD6F9CF894}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35D64215-7217-4362-BC95-5ADD6F9CF894}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35D64215-7217-4362-BC95-5ADD6F9CF894}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

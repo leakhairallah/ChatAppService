@@ -42,19 +42,4 @@ public class ProfileController : ControllerBase
         return CreatedAtAction(nameof(GetProfile), new { username = profile.Username },
             profile);
     }
-
-    [HttpPut("{username}")]
-    public async Task<ActionResult<Profile>> UpdateProfile(string username, string FirstName, string LastName,
-        string imageId)
-    {
-        var existingProfile = await _profileStore.GetProfile(username);
-        if (existingProfile == null)
-        {
-            return NotFound($"A User with username {username} was not found");
-        }
-
-        var profile = new Profile(username, FirstName, LastName, imageId);
-        await _profileStore.UpsertProfile(profile);
-        return Ok(profile);
-    }
 }

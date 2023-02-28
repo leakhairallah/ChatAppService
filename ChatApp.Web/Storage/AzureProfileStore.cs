@@ -32,8 +32,6 @@ public class ProfileStore : IProfileStore
         {
             throw new ArgumentException($"Invalid profile {profile}", nameof(profile));
         }
-        
-        
         await CosmosContainer.UpsertItemAsync(ToEntity(profile));
     }
 
@@ -111,21 +109,41 @@ public class ProfileStore : IProfileStore
         }
     }
     
+    public async Task DeleteProfile(string username)
+    {
+        try
+        {
+            await CosmosContainer.DeleteItemAsync<Profile>(
+                id: username,
+                partitionKey: new PartitionKey(username)
+            );
+        }
+        catch (CosmosException e)
+        {
+            if (e.StatusCode == HttpStatusCode.NotFound)
+            {
+                return;
+            }
+
+            throw;
+        }
+    }
+    
     private static ProfileEntity ToEntity(Profile profile)
     {
         return new ProfileEntity(
-            PartitionKey: profile.Username,
-            Id: profile.Username,
-            profile.FirstName,
-            profile.LastName,
-            profile.ProfilePictureId
+            partitionKey: profile.Username,
+            id: profile.Username,
+            FirstName: profile.FirstName,
+            LastName: profile.LastName,
+            ProfilePictureId: profile.ProfilePictureId
         );
     }
 
     private static Profile ToProfile(ProfileEntity entity)
     {
         return new Profile(
-            Username: entity.Id,
+            Username: entity.id,
             entity.FirstName,
             entity.LastName,
             entity.ProfilePictureId
