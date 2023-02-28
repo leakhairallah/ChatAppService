@@ -74,7 +74,7 @@ public class ImageStore : IImageStore
     private static Profile ToProfile(ProfileEntity entity)
     {
         return new Profile(
-            Username: entity.Id,
+            Username: entity.id,
             entity.FirstName,
             entity.LastName,
             entity.ProfilePictureId
