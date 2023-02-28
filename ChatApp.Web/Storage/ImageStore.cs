@@ -70,6 +70,16 @@ public class ImageStore : IImageStore
             throw;
         }
     }
+    
+    private static Profile ToProfile(ProfileEntity entity)
+    {
+        return new Profile(
+            Username: entity.Id,
+            entity.FirstName,
+            entity.LastName,
+            entity.ProfilePictureId
+        );
+    }
 
 
 }
