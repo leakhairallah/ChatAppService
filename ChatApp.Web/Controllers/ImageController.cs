@@ -8,9 +8,9 @@ namespace ChatApp.Web.Controllers;
 [Route("[controller]")]
 public class ImageController : ControllerBase
 {
-    private readonly IProfileStore _profileStore;
+    private readonly IImageStore _profileStore;
 
-    public ImageController(IProfileStore profileStore)
+    public ImageController(IImageStore profileStore)
     {
         _profileStore = profileStore;
     }
@@ -20,7 +20,7 @@ public class ImageController : ControllerBase
     public async Task<ActionResult<UploadImageResponse>> UploadImage([FromForm] UploadImageRequest request)
     {
         var response = await _profileStore.UpsertProfilePicture(request);
-        return CreatedAtAction(nameof(UploadImage), new { image = request.File.FileName }, response);
+        return CreatedAtAction(nameof(DownloadImage), new { image = response.Id }, response);
     }
 
     

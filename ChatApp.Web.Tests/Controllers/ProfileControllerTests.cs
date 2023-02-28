@@ -1,5 +1,7 @@
 ﻿using System.Net;
+using System.Net.Http.Headers;
 using System.Text;
+using Azure;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,6 +37,24 @@ public class ProfileControllerTests: IClassFixture<WebApplicationFactory<Program
         
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
     }
-    
+
+    [Fact]
+    public async Task AddImage()
+    {
+        byte[] stream = new byte[] {0x12};
+        HttpContent fileStreamContent = new StreamContent(new MemoryStream(stream)); 
+        fileStreamContent.Headers.ContentDisposition = new ContentDispositionHeaderValue("form-data")
+        {
+            Name = "File",
+            FileName = "anything" 
+        };
+
+        using var formData = new MultipartFormDataContent();
+        formData.Add(fileStreamContent);
+
+        var response = await _httpClient.PostAsync("/Image", formData);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+    }
 
 }
