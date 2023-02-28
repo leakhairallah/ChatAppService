@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Net;
+using Azure;
+using Microsoft.AspNetCore.Mvc;
 using ChatApp.Web.Dtos;
 using ChatApp.Web.Storage;
 
@@ -14,26 +16,33 @@ public class ImageController : ControllerBase
     {
         _profileStore = profileStore;
     }
-
-
+    
     [HttpPost]
     public async Task<ActionResult<UploadImageResponse>> UploadImage([FromForm] UploadImageRequest request)
     {
         var response = await _profileStore.UpsertProfilePicture(request);
-        return CreatedAtAction(nameof(DownloadImage), new { image = response.Id }, response);
+        if (response == null)
+        {
+            return BadRequest("Could not upload profile picture");
+        }
+        
+        var uploadImageResponse = new UploadImageResponse(response.Id);
+        return Ok(uploadImageResponse);
     }
 
     
     [HttpGet("{id}")]
-    public async Task<ActionResult<FileContentResult>> DownloadImage(string id)
+    public async Task<FileContentResult?> DownloadImage(string id)
     {
         var image = await _profileStore.GetProfilePicture(id);
         if (image == null)
         {
-            return NotFound($"No such image found in database");
+            return null;
         }
 
-        return Ok(image);
-    }
+        FileContentResult file = new FileContentResult(image, "image/jpeg");
 
+        return file;
+    }
 }
+

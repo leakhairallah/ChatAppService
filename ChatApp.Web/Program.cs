@@ -29,7 +29,7 @@ builder.Services.AddSingleton(sp =>
 builder.Services.AddSingleton(sp =>
 {
     var blobOptions = sp.GetRequiredService<IOptions<BlobSettings>>();
-    return new BlobContainerClient(blobOptions.Value.ConnectionString, "profileImages");
+    return new BlobContainerClient(blobOptions.Value.ConnectionString, "profileimages");
 });
 
 var app = builder.Build();

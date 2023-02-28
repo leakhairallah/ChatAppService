@@ -7,7 +7,7 @@ using Xunit.Abstractions;
 
 namespace ChatApp.Web.IntegrationTest;
 
-public class CosmosProfileStoreTest : IClassFixture<WebApplicationFactory<Program>>, IAsyncLifetime
+public class ProfileStoreIntegrationTest : IClassFixture<WebApplicationFactory<Program>>, IAsyncLifetime
 {
     private readonly IProfileStore _store;
 
@@ -28,7 +28,7 @@ public class CosmosProfileStoreTest : IClassFixture<WebApplicationFactory<Progra
         await _store.DeleteProfile(_profile.Username);
     }
 
-    public CosmosProfileStoreTest(WebApplicationFactory<Program> factory)
+    public ProfileStoreIntegrationTest(WebApplicationFactory<Program> factory)
     {
         _store = factory.Services.GetRequiredService<IProfileStore>();
     }

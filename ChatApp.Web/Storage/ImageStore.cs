@@ -4,6 +4,7 @@ using Microsoft.Azure.Cosmos;
 using Azure.Storage.Blobs;
 using ChatApp.Web.Dtos;
 using ChatApp.Web.Storage.Entities;
+using Microsoft.AspNetCore.Mvc;
 
 
 namespace ChatApp.Web.Storage;
@@ -31,8 +32,10 @@ public class ImageStore : IImageStore
         
         using var stream = new MemoryStream();
         await profilePicture.File.CopyToAsync(stream);
+        stream.Position = 0;
         
         string imageId = Guid.NewGuid().ToString();
+        Console.WriteLine(imageId);
 
         await _blobContainerClient.UploadBlobAsync(imageId, stream);
         return new UploadImageResponse(imageId);
@@ -67,6 +70,25 @@ public class ImageStore : IImageStore
             {
                 return null;
             }
+            throw;
+        }
+    }
+
+    public async Task DeleteProfilePicture(string id)
+    {
+        BlobClient blobClient = _blobContainerClient.GetBlobClient(id);
+        
+        try
+        {
+            await blobClient.DeleteIfExistsAsync();
+        }
+        catch (RequestFailedException e)
+        {
+            if (e.Status == 404)
+            {
+                return;
+            }
+
             throw;
         }
     }
