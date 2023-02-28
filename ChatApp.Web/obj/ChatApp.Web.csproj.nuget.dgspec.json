@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Karima\\Desktop\\503E\\github\\chatapp\\ChatAppService\\ChatApp.Web\\ChatApp.Web.csproj": {}
+    "/Users/leakhairallah/Desktop/ChatAppService/ChatApp.Web/ChatApp.Web.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Karima\\Desktop\\503E\\github\\chatapp\\ChatAppService\\ChatApp.Web\\ChatApp.Web.csproj": {
+    "/Users/leakhairallah/Desktop/ChatAppService/ChatApp.Web/ChatApp.Web.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Karima\\Desktop\\503E\\github\\chatapp\\ChatAppService\\ChatApp.Web\\ChatApp.Web.csproj",
+        "projectUniqueName": "/Users/leakhairallah/Desktop/ChatAppService/ChatApp.Web/ChatApp.Web.csproj",
         "projectName": "ChatApp.Web",
-        "projectPath": "C:\\Users\\Karima\\Desktop\\503E\\github\\chatapp\\ChatAppService\\ChatApp.Web\\ChatApp.Web.csproj",
-        "packagesPath": "C:\\Users\\Karima\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Karima\\Desktop\\503E\\github\\chatapp\\ChatAppService\\ChatApp.Web\\obj\\",
+        "projectPath": "/Users/leakhairallah/Desktop/ChatAppService/ChatApp.Web/ChatApp.Web.csproj",
+        "packagesPath": "/Users/leakhairallah/.nuget/packages/",
+        "outputPath": "/Users/leakhairallah/Desktop/ChatAppService/ChatApp.Web/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\Karima\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "/Users/leakhairallah/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net6.0"
@@ -69,19 +69,15 @@
           "downloadDependencies": [
             {
               "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[6.0.13, 6.0.13]"
+              "version": "[6.0.12, 6.0.12]"
             },
             {
-              "name": "Microsoft.NETCore.App.Host.win-x64",
-              "version": "[6.0.13, 6.0.13]"
+              "name": "Microsoft.NETCore.App.Host.osx-arm64",
+              "version": "[6.0.12, 6.0.12]"
             },
             {
               "name": "Microsoft.NETCore.App.Ref",
-              "version": "[6.0.13, 6.0.13]"
-            },
-            {
-              "name": "Microsoft.WindowsDesktop.App.Ref",
-              "version": "[6.0.13, 6.0.13]"
+              "version": "[6.0.12, 6.0.12]"
             }
           ],
           "frameworkReferences": {
@@ -92,7 +88,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.102\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/7.0.101/RuntimeIdentifierGraph.json"
         }
       }
     }
