@@ -20,6 +20,7 @@ builder.Services.Configure<BlobSettings>(builder.Configuration.GetSection("Blob"
 
 // Add Services
 builder.Services.AddSingleton<IProfileStore, ProfileStore>();
+builder.Services.AddSingleton<IImageStore, ImageStore>();
 builder.Services.AddSingleton(sp =>
 {
     var cosmosOptions = sp.GetRequiredService<IOptions<CosmosSettings>>();
