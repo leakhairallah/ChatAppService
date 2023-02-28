@@ -57,26 +57,4 @@ public class ProfileController : ControllerBase
         await _profileStore.UpsertProfile(profile);
         return Ok(profile);
     }
-
-    [HttpPost]
-    public async Task<ActionResult<UploadImageResponse>> UploadImage([FromForm] UploadImageRequest request)
-    {
-        var response = await _profileStore.UpsertProfilePicture(request);
-        return CreatedAtAction(nameof(UploadImage), new { image = request.File.FileName }, response);
-    }
-
-    
-    [HttpGet("{id}")]
-    public async Task<ActionResult<FileContentResult>> DownloadImage(string id)
-    {
-        var image = await _profileStore.GetProfilePicture(id);
-        if (image == null)
-        {
-            return NotFound($"No such image found in database");
-        }
-
-        return Ok(image);
-    }
-
-
 }
