@@ -35,7 +35,6 @@ public class ImageStore : IImageStore
         stream.Position = 0;
         
         string imageId = Guid.NewGuid().ToString();
-        Console.WriteLine(imageId);
 
         await _blobContainerClient.UploadBlobAsync(imageId, stream);
         return new UploadImageResponse(imageId);

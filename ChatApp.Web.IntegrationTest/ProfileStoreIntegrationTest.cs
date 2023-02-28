@@ -36,8 +36,104 @@ public class ProfileStoreIntegrationTest : IClassFixture<WebApplicationFactory<P
     [Fact]
     public async Task AddNewProfile()
     {
-        await _store.UpsertProfile(_profile);
-        Assert.Equal(_profile, await _store.GetProfile(_profile.Username));
+        // Arrange
+        var profile = _profile;
+
+        // Act
+        await _store.UpsertProfile(profile);
+        var result = await _store.GetProfile(profile.Username);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(profile.Username, result!.Username);
+        Assert.Equal(profile.FirstName, result.FirstName);
+        Assert.Equal(profile.LastName, result.LastName);
+        Assert.Equal(profile.ProfilePictureId, result.ProfilePictureId);
+    }
+
+    [Fact]
+    public async Task UpdateProfile()
+    {
+        // Arrange
+        var profile = _profile;
+        await _store.UpsertProfile(profile);
+        var newProfile = new Profile(
+            Username: profile.Username,
+            FirstName: "Baz",
+            LastName: "Qux",
+            ProfilePictureId: "updated"
+        );
+
+        // Act
+        await _store.UpsertProfile(newProfile);
+        var result = await _store.GetProfile(profile.Username);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(newProfile.Username, result!.Username);
+        Assert.Equal(newProfile.FirstName, result.FirstName);
+        Assert.Equal(newProfile.LastName, result.LastName);
+        Assert.Equal(newProfile.ProfilePictureId, result.ProfilePictureId);
+    }
+
+    [Fact]
+    public async Task DeleteProfile()
+    {
+        // Arrange
+        var profile = _profile;
+        await _store.UpsertProfile(profile);
+
+        // Act
+        await _store.DeleteProfile(profile.Username);
+        var result = await _store.GetProfile(profile.Username);
+
+        // Assert
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public async Task UpsertProfile_NullProfile_ThrowsArgumentException()
+    {
+        // Arrange
+        Profile? profile = null;
+
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentException>(() => _store.UpsertProfile(profile!));
+    }
+
+    [Fact]
+    public async Task UpsertProfile_NullOrWhiteSpaceUsername_ThrowsArgumentException()
+    {
+        // Arrange
+        var profile = new Profile(
+            Username: null!,
+            FirstName: "FirstName",
+            LastName: "LastName",
+            ProfilePictureId: "ProfilePictureId"
+        );
+
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentException>(() => _store.UpsertProfile(profile));
+
+        profile = new Profile(
+            Username: "",
+            FirstName: "FirstName",
+            LastName: "LastName",
+            ProfilePictureId: "ProfilePictureId"
+        );
+
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentException>(() => _store.UpsertProfile(profile));
+
+        profile = new Profile(
+            Username: "   ",
+            FirstName: "FirstName",
+            LastName: "LastName",
+            ProfilePictureId: "ProfilePictureId"
+        );
+
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentException>(() => _store.UpsertProfile(profile));
     }
 
 }
