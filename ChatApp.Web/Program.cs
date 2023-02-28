@@ -3,6 +3,7 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Options;
 using ChatApp.Web.Configuration;
 using ChatApp.Web.Storage;
+// using ChatApp.Web.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,10 +28,8 @@ builder.Services.AddSingleton(sp =>
 builder.Services.AddSingleton(sp =>
 {
     var blobOptions = sp.GetRequiredService<IOptions<BlobSettings>>();
-    return new BlobContainerClient(blobOptions.Value.ConnectionString, "profileimages");
+    return new BlobContainerClient(blobOptions.Value.ConnectionString, "profileImages");
 });
-
-
 
 var app = builder.Build();
 
@@ -38,7 +37,11 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Chat App");
+        options.RoutePrefix = string.Empty;
+    });
 }
 
 app.UseHttpsRedirection();
