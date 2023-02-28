@@ -37,24 +37,7 @@ public class ProfileStore : IProfileStore
         await CosmosContainer.UpsertItemAsync(ToEntity(profile));
     }
 
-    public async Task<UploadImageResponse?> UpsertProfilePicture(UploadImageRequest profilePicture)
-    {
-        if (profilePicture == null || 
-            profilePicture.File.Length == 0)
-        {
-            throw new ArgumentException($"Invalid profile picture {profilePicture}", nameof(profilePicture));
-        }
-        
-        using var stream = new MemoryStream();
-        await profilePicture.File.CopyToAsync(stream);
-        
-        string imageId = Guid.NewGuid().ToString();
-
-        await _blobContainerClient.UploadBlobAsync(imageId, stream);
-        return new UploadImageResponse(imageId);
-        
-    }
-
+    
     public async Task<Profile?> GetProfile(string username)
     {
         try
@@ -80,36 +63,6 @@ public class ProfileStore : IProfileStore
         }
     }
     
-    public async Task<byte[]?> GetProfilePicture(string username)
-    {
-        try
-        {
-            var entity = await CosmosContainer.ReadItemAsync<ProfileEntity>(
-                id: username,
-                partitionKey: new PartitionKey(username),
-                new ItemRequestOptions
-                {
-                    ConsistencyLevel = ConsistencyLevel.Session
-                }
-            );
-            
-            var response = await _blobContainerClient.GetBlobClient(ToProfile(entity).ProfilePictureId).DownloadAsync();
-
-            await using var memoryStream = new MemoryStream();
-            await response.Value.Content.CopyToAsync(memoryStream);
-            var bytes = memoryStream.ToArray();
-
-            return bytes;
-        }
-        catch (RequestFailedException e)
-        {
-            if (e.Status == 404)
-            {
-                return null;
-            }
-            throw;
-        }
-    }
     
     private static ProfileEntity ToEntity(Profile profile)
     {
