@@ -36,9 +36,9 @@ public class ImageStore : IImageStore
         
         string imageId = Guid.NewGuid().ToString();
 
+
         await _blobContainerClient.UploadBlobAsync(imageId, stream);
         return new UploadImageResponse(imageId);
-        
     }
     public async Task<byte[]?> GetProfilePicture(string username)
     {
@@ -52,9 +52,9 @@ public class ImageStore : IImageStore
                     ConsistencyLevel = ConsistencyLevel.Session
                 }
             );
-            
-            
-            
+
+
+
             var response = await _blobContainerClient.GetBlobClient(ToProfile(entity).ProfilePictureId).DownloadAsync();
 
             await using var memoryStream = new MemoryStream();
@@ -62,6 +62,15 @@ public class ImageStore : IImageStore
             var bytes = memoryStream.ToArray();
 
             return bytes;
+        }
+        catch (CosmosException e)
+        {
+            if (e.StatusCode == HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+
+            throw;
         }
         catch (RequestFailedException e)
         {
