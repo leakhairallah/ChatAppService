@@ -24,8 +24,7 @@ public class ImageStore : IImageStore
 
     public async Task<UploadImageResponse?> UpsertProfilePicture(UploadImageRequest profilePicture)
     {
-        if (profilePicture == null || 
-            profilePicture.File.Length == 0)
+        if (profilePicture == null || profilePicture.File.Length == 0)
         {
             throw new ArgumentException($"Invalid profile picture {profilePicture}", nameof(profilePicture));
         }

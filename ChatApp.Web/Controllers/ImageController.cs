@@ -20,7 +20,15 @@ public class ImageController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<UploadImageResponse>> UploadImage([FromForm] UploadImageRequest request)
     {
-        var response = await _profileStore.UpsertProfilePicture(request);
+        var response = new UploadImageResponse(null);
+        try
+        {
+            response = await _profileStore.UpsertProfilePicture(request);
+        }
+        catch (ArgumentException e)
+        {
+            return UnprocessableEntity("Bad input!");
+        }
         if (response == null)
         {
             return BadRequest("Could not upload profile picture");
@@ -31,17 +39,16 @@ public class ImageController : ControllerBase
     }
 
     
-    [HttpGet("{id}")]
-    public async Task<FileContentResult?> DownloadImage(string id)
+    [HttpGet("{username}")]
+    public async Task<FileContentResult?> DownloadImage(string username)
     {
-        var image = await _profileStore.GetProfilePicture(id);
+        var image = await _profileStore.GetProfilePicture(username);
         if (image == null)
         {
             return null;
         }
-
         FileContentResult file = new FileContentResult(image, "image/jpeg");
-
+        
         return file;
     }
 }
