@@ -40,16 +40,16 @@ public class ImageController : ControllerBase
 
     
     [HttpGet("{username}")]
-    public async Task<FileContentResult?> DownloadImage(string username)
+    public async Task<IActionResult> DownloadImage(string username)
     {
         var image = await _profileStore.GetProfilePicture(username);
         if (image == null)
         {
-            return null;
+            return NotFound("Image not found");
         }
         FileContentResult file = new FileContentResult(image, "image/jpeg");
         
-        return file;
+        return Ok(file);
     }
 }
 
