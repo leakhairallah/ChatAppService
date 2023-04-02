@@ -21,5 +21,6 @@ public class MessageService : IMessageService
     public async Task<UserConversation?> GetMessageFromConversation(string conversationId)
     {
         return await _messageStore.GetMessageFromConversation(conversationId);
+
     }
 }

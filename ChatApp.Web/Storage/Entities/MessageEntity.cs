@@ -2,7 +2,7 @@ namespace ChatApp.Web.Storage.Entities;
 
 public record MessageEntity(
     string partitionKey,
-    string MessageId,
+    string id,
     string SenderUsername,
     string Content,
     long Timestamp);

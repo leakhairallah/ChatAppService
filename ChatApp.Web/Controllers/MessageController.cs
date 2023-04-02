@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ChatApp.Web.Controllers;
 
+//TODO: fix return messages; check if you checked for every error
 
 [ApiController]
 [Route("[controller]")]
@@ -38,6 +39,6 @@ public class MessageController : ControllerBase
         {
             return NotFound($"Tried posting a message to a non existing conversation");
         }
-        return CreatedAtAction(nameof(PostMessageToConversation), new {timestamp = newMessage.timestamp}, msg);
+        return Ok(new UploadMessageResponse(newMessage.timestamp));
     }
 }
