@@ -5,6 +5,8 @@ on:
     # Every day at 1am
     - cron: '0 1 * * *'
 
+  workflow_dispatch:
+
 jobs:
   remove-old-artifacts:
     runs-on: ubuntu-latest
