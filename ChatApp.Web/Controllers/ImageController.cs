@@ -1,8 +1,6 @@
-﻿using System.Net;
-using Azure;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using ChatApp.Web.Dtos;
-using ChatApp.Web.Storage;
+using ChatApp.Web.Service;
 
 namespace ChatApp.Web.Controllers;
 
@@ -10,11 +8,11 @@ namespace ChatApp.Web.Controllers;
 [Route("[controller]")]
 public class ImageController : ControllerBase
 {
-    private readonly IImageStore _profileStore;
+    private readonly IImageService _imageService;
 
-    public ImageController(IImageStore profileStore)
+    public ImageController(IImageService imageService)
     {
-        _profileStore = profileStore;
+        _imageService = imageService;
     }
     
     [HttpPost]
@@ -23,11 +21,11 @@ public class ImageController : ControllerBase
         var response = new UploadImageResponse(null);
         try
         {
-            response = await _profileStore.UpsertProfilePicture(request);
+            response = await _imageService.UpsertProfilePicture(request);
         }
         catch (ArgumentException e)
         {
-            return UnprocessableEntity("Bad input!");
+            return UnprocessableEntity("Bad input");
         }
         if (response == null)
         {
@@ -42,7 +40,7 @@ public class ImageController : ControllerBase
     [HttpGet("{username}")]
     public async Task<IActionResult> DownloadImage(string username)
     {
-        var image = await _profileStore.GetProfilePicture(username);
+        var image = await _imageService.GetProfilePicture(username);
         if (image == null)
         {
             return NotFound("Image not found");
