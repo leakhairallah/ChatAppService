@@ -5,8 +5,8 @@ namespace ChatApp.Web.Service;
 
 public class ImageService : IImageService
 {
-    private readonly IImageService _imageStore;
-    public ImageService(IImageService imageStore)
+    private readonly IImageStore _imageStore;
+    public ImageService(IImageStore imageStore)
     {
         _imageStore = imageStore;
     }
