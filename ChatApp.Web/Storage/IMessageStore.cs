@@ -6,5 +6,5 @@ public interface IMessageStore
 {
     Task<UploadMessageResponse?> PostMessageToConversation(Message msg);
 
-    Task<UserConversation?> GetMessageFromConversation();
+    Task<UserConversation?> GetMessageFromConversation(String conversationId);
 }

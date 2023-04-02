@@ -28,28 +28,69 @@ public class MessageStore : IMessageStore
         {
             throw new ArgumentException($"Invalid message {msg}", nameof(msg));
         }
-
+        
         try
         {
-            var messageEntity = ToEntity(msg);
-            await CosmosContainer.CreateItemAsync(messageEntity);
-            
-            return new UploadMessageResponse(messageEntity.Timestamp);
+            await CosmosContainer.ReadItemAsync<ConversationEntity>(
+                id: msg.ConversationId,
+                partitionKey: new PartitionKey(msg.ConversationId),
+                new ItemRequestOptions
+                {
+                    ConsistencyLevel = ConsistencyLevel.Session
+                }
+            );
+
         }
 
         catch (CosmosException e)
         {
             if (e.StatusCode == HttpStatusCode.NotFound)
             {
-                return null;
+                throw new ArgumentException($"Conversation doesn't exist, please create one first.");
             }
-            throw;
         }
+
+        var messageEntity = ToEntity(msg);
+        await CosmosContainer.CreateItemAsync(messageEntity);
+        
+        return new UploadMessageResponse(messageEntity.Timestamp);
     }
 
-    public async Task<UserConversation?> GetMessageFromConversation()
+    public async Task<UserConversation?> GetMessageFromConversation(string conversationId)
     {
-        
+        try
+        {
+            var parameterizedQuery = new QueryDefinition("SELECT * FROM c WHERE c.conversationId = @conversationId")
+                .WithParameter("@conversationId", conversationId);
+
+            var messages = new List<Message>();
+            
+            using FeedIterator<MessageEntity> filteredFeed = CosmosContainer.GetItemQueryIterator<MessageEntity>(
+                queryDefinition: parameterizedQuery
+            );
+            
+            while (filteredFeed.HasMoreResults)
+            {
+                FeedResponse<MessageEntity> response = await filteredFeed.ReadNextAsync();
+
+                // Iterate query results
+                foreach (MessageEntity messageEntity in response)
+                {
+                    messages.Add(ToMessage(messageEntity));
+                }
+            }
+
+            return new UserConversation(messages);
+        }
+        catch (CosmosException e)
+        {
+            if (e.StatusCode == HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+
+            throw;
+        }
     }
     
     private static MessageEntity ToEntity(Message msg)
@@ -59,7 +100,7 @@ public class MessageStore : IMessageStore
             MessageId: Guid.NewGuid().ToString(),
             SenderUsername: msg.SenderUsername,
             Content: msg.Content,
-            Timestamp: DateTime.Now
+            Timestamp: DateTimeOffset.UtcNow.ToUnixTimeSeconds()
         );
     }
 

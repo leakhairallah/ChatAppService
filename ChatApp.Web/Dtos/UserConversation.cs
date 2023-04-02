@@ -3,4 +3,6 @@
 namespace ChatApp.Web.Dtos;
 
 public record UserConversation(
-    List<Message> Messages);
+    List<Message> Messages
+    // string NextUri to figure out later
+    );

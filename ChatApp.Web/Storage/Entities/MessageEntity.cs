@@ -5,4 +5,4 @@ public record MessageEntity(
     string MessageId,
     string SenderUsername,
     string Content,
-    DateTime Timestamp);
+    long Timestamp);

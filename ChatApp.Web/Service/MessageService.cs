@@ -3,6 +3,7 @@ using ChatApp.Web.Storage;
 
 namespace ChatApp.Web.Service;
 
+// TODO: implement service bus
 public class MessageService : IMessageService
 {
     private readonly IMessageStore _messageStore;
@@ -14,11 +15,11 @@ public class MessageService : IMessageService
     
     public async Task<UploadMessageResponse?> PostMessageToConversation(Message msg)
     {
-        return _messageStore.PostMessageToConversation(msg);
+        return await _messageStore.PostMessageToConversation(msg);
     }
 
-    public async Task<UserConversation?> GetMessageFromConversation()
+    public async Task<UserConversation?> GetMessageFromConversation(string conversationId)
     {
-        
+        return await _messageStore.GetMessageFromConversation(conversationId);
     }
 }
