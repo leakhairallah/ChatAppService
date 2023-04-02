@@ -2,4 +2,5 @@
 
 namespace ChatApp.Web.Dtos;
 
-public record UserConversation();
+public record UserConversation(
+    List<Message> Messages);

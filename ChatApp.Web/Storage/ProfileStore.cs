@@ -19,7 +19,7 @@ public class ProfileStore : IProfileStore
     }
 
     // DRY
-    private Container CosmosContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("sharedContainer");
+    private Container CosmosContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("profiles");
     
     public async Task UpsertProfile(Profile profile)
     {
