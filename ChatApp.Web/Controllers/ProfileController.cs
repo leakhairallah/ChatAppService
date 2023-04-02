@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using Microsoft.AspNetCore.Mvc;
 using ChatApp.Web.Dtos;
-using ChatApp.Web.Storage;
+using ChatApp.Web.Service;
 
 namespace ChatApp.Web.Controllers;
 
@@ -10,17 +10,17 @@ namespace ChatApp.Web.Controllers;
 [Route("[controller]")]
 public class ProfileController : ControllerBase
 {
-    private readonly IProfileStore _profileStore;
+    private readonly IProfileService _profileService;
 
-    public ProfileController(IProfileStore profileStore)
+    public ProfileController(IProfileService profileService)
     {
-        _profileStore = profileStore;
+        _profileService = profileService;
     }
 
     [HttpGet("{username}")]
     public async Task<ActionResult<Profile>> GetProfile(string username)
     {
-        var profile = await _profileStore.GetProfile(username);
+        var profile = await _profileService.GetProfile(username);
         if (profile == null)
         {
             return NotFound($"A User with username {username} was not found");
@@ -32,13 +32,13 @@ public class ProfileController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Profile>> AddProfile(Profile profile)
     {
-        var existingProfile = await _profileStore.GetProfile(profile.Username);
+        var existingProfile = await _profileService.GetProfile(profile.Username);
         if (existingProfile != null)
         {
             return Conflict($"A user with username {profile.Username} already exists");
         }
 
-        await _profileStore.UpsertProfile(profile);
+        await _profileService.CreateProfile(profile);
         return CreatedAtAction(nameof(GetProfile), new { username = profile.Username },
             profile);
     }

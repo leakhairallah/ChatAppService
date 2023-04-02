@@ -3,7 +3,7 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Options;
 using ChatApp.Web.Configuration;
 using ChatApp.Web.Storage;
-// using ChatApp.Web.Controllers;
+using ChatApp.Web.Service;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +31,9 @@ builder.Services.AddSingleton(sp =>
     var blobOptions = sp.GetRequiredService<IOptions<BlobSettings>>();
     return new BlobContainerClient(blobOptions.Value.ConnectionString, "profileimages");
 });
+
+builder.Services.AddSingleton<IImageService, ImageService>();
+builder.Services.AddSingleton<IProfileService, ProfileService>();
 
 var app = builder.Build();
 

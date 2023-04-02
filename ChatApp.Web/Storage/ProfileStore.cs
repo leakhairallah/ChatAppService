@@ -19,8 +19,8 @@ public class ProfileStore : IProfileStore
     }
 
     // DRY
-    private Container CosmosContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("sharedContainer");
-
+    private Container CosmosContainer => _cosmosClient.GetDatabase("chatapi").GetContainer("profile");
+    
     public async Task UpsertProfile(Profile profile)
     {
         if (profile == null ||
@@ -35,6 +35,35 @@ public class ProfileStore : IProfileStore
         await CosmosContainer.UpsertItemAsync(ToEntity(profile));
     }
 
+    public async Task AddProfile(Profile profile)
+    {
+        try
+        {
+            ValidateProfile(profile);
+            await CosmosContainer.CreateItemAsync(ToEntity(profile));
+        }
+        catch (CosmosException e)
+        {
+            if (e.StatusCode == HttpStatusCode.Conflict)
+            {
+                return;
+            }
+
+            throw;
+        }
+    }
+    
+    private static void ValidateProfile(Profile profile)
+    {
+        if (profile == null ||
+            string.IsNullOrWhiteSpace(profile.Username) ||
+            string.IsNullOrWhiteSpace(profile.FirstName) ||
+            string.IsNullOrWhiteSpace(profile.LastName)
+           )
+        {
+            throw new ArgumentException($"Invalid profile {profile}", nameof(profile));
+        }
+    }
     
     public async Task<Profile?> GetProfile(string username)
     {
