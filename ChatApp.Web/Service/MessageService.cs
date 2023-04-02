@@ -14,11 +14,11 @@ public class MessageService : IMessageService
     
     public async Task<UploadMessageResponse?> PostMessageToConversation(Message msg)
     {
-        return _messageStore.PostMessageToConversation(msg);
+        return await _messageStore.PostMessageToConversation(msg);
     }
 
     public async Task<UserConversation?> GetMessageFromConversation()
     {
-        
+        return null;
     }
 }

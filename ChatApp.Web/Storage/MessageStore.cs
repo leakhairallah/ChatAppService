@@ -49,7 +49,7 @@ public class MessageStore : IMessageStore
 
     public async Task<UserConversation?> GetMessageFromConversation()
     {
-        
+        return null;
     }
     
     private static MessageEntity ToEntity(Message msg)
