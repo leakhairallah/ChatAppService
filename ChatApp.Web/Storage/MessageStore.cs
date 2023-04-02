@@ -1,3 +1,4 @@
+using System.Net;
 using Azure.Storage.Blobs;
 using ChatApp.Web.Dtos;
 using ChatApp.Web.Storage.Entities;
@@ -30,14 +31,25 @@ public class MessageStore : IMessageStore
 
         try
         {
-            var uploadMessageResponse = await CosmosContainer.CreateItemAsync();
+            var messageEntity = ToEntity(msg);
+            await CosmosContainer.CreateItemAsync(messageEntity);
+            
+            return new UploadMessageResponse(messageEntity.Timestamp);
         }
-        return new UploadMessageResponse();
+
+        catch (CosmosException e)
+        {
+            if (e.StatusCode == HttpStatusCode.NotFound)
+            {
+                return null;
+            }
+            throw;
+        }
     }
 
     public async Task<UserConversation?> GetMessageFromConversation()
     {
-
+        
     }
     
     private static MessageEntity ToEntity(Message msg)
@@ -47,7 +59,16 @@ public class MessageStore : IMessageStore
             MessageId: Guid.NewGuid().ToString(),
             SenderUsername: msg.SenderUsername,
             Content: msg.Content,
-            Timestamp: DateTime.Now()
+            Timestamp: DateTime.Now
+        );
+    }
+
+    private static Message ToMessage(MessageEntity msg)
+    {
+        return new Message(
+            msg.partitionKey,
+            msg.Content,
+            msg.SenderUsername
         );
     }
 }

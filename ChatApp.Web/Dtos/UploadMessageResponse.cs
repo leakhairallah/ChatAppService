@@ -1,5 +1,5 @@
 namespace ChatApp.Web.Dtos;
 
 public record UploadMessageResponse(
-    String timestamp
+    DateTime timestamp
     );
