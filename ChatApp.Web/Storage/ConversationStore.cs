@@ -19,27 +19,21 @@ public class ConversationStore: IConversationStore
 
     public async Task<HttpStatusCode> AddConversation(string conversationId, long time)
     {
-        if (string.IsNullOrWhiteSpace(conversationId) || time <= 0 || time>DateTimeOffset.UtcNow.ToUnixTimeSeconds())
-        {
-            Console.WriteLine(time);
-    
-
-    public async Task<HttpStatusCode> AddConversation(string conversationId, long time)
-    {
         //TODO: implement these checks in the service layer
-        if (string.IsNullOrWhiteSpace(conversationId) || time.IsNull() || time>DateTime.UtcNow.Millisecond)
+        if (string.IsNullOrWhiteSpace(conversationId) || time.IsNull())
         {
             throw new ArgumentException($"Invalid input {conversationId}", nameof(conversationId));
         }
+
         try
         {
             //TODO: create toConversation function 
             var conversation = new ConversationEntity(
                 id: conversationId,
                 partitionKey: conversationId,
-                ModifiedUnixTime: time
+                timestamp: time
             );
-            
+
             await CosmosContainer.CreateItemAsync(conversation);
 
             return HttpStatusCode.OK;
@@ -51,26 +45,29 @@ public class ConversationStore: IConversationStore
             {
                 return e.StatusCode;
             }
+
             throw;
         }
     }
 
+
     public async Task<HttpStatusCode> UpdateConversation(string conversationId, long time)
     {
         //TODO: implement these checks in the service layer
-        if (string.IsNullOrWhiteSpace(conversationId) || time.IsNull() || time>DateTime.UtcNow.Millisecond)
+        if (string.IsNullOrWhiteSpace(conversationId) || time.IsNull() || time > DateTime.UtcNow.Millisecond)
         {
             throw new ArgumentException($"Invalid input {conversationId}", nameof(conversationId));
         }
+
         try
         {
             //TODO: create toConversation function 
             var conversation = new ConversationEntity(
                 id: conversationId,
-                PartitionKey: conversationId,
-                ModifiedUnixTime: time
+                partitionKey: conversationId,
+                timestamp: time
             );
-            
+
             await CosmosContainer.UpsertItemAsync(conversation);
 
             return HttpStatusCode.OK;
@@ -81,7 +78,9 @@ public class ConversationStore: IConversationStore
             {
                 return e.StatusCode;
             }
+
             throw;
         }
     }
 }
+    

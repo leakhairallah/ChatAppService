@@ -1,7 +1,5 @@
-using System.Net;
 using ChatApp.Web.Storage.Entities;
 using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Cosmos.Linq;
 namespace ChatApp.Web.Storage;
 
 public class ConversationParticipantsStore : IConversationParticipantsStore
@@ -20,12 +18,14 @@ public class ConversationParticipantsStore : IConversationParticipantsStore
         //TODO: check if id already exists is db
         //TODO: check if these users already have a conversation in the db in the SERVICE LAYER
         var conversation1 = new ConversationParticipants(
-            PartitionKey: id,
+            id: id,
+            partitionKey: id,
             Participant: participant1
         );
         
         var conversation2 = new ConversationParticipants(
-            PartitionKey: id,
+            id: id,
+            partitionKey: id,
             Participant: participant2
         );
         

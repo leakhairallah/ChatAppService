@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Karima\\Desktop\\503E\\github\\chatapp\\ChatAppService\\ChatApp.Web.IntegrationTest\\ChatApp.Web.IntegrationTest.csproj": {}
+    "C:\\Users\\Karima\\Desktop\\503E\\github\\ChatAppService\\ChatApp.Web.IntegrationTest\\ChatApp.Web.IntegrationTest.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Karima\\Desktop\\503E\\github\\chatapp\\ChatAppService\\ChatApp.Web.IntegrationTest\\ChatApp.Web.IntegrationTest.csproj": {
+    "C:\\Users\\Karima\\Desktop\\503E\\github\\ChatAppService\\ChatApp.Web.IntegrationTest\\ChatApp.Web.IntegrationTest.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Karima\\Desktop\\503E\\github\\chatapp\\ChatAppService\\ChatApp.Web.IntegrationTest\\ChatApp.Web.IntegrationTest.csproj",
+        "projectUniqueName": "C:\\Users\\Karima\\Desktop\\503E\\github\\ChatAppService\\ChatApp.Web.IntegrationTest\\ChatApp.Web.IntegrationTest.csproj",
         "projectName": "ChatApp.Web.IntegrationTest",
-        "projectPath": "C:\\Users\\Karima\\Desktop\\503E\\github\\chatapp\\ChatAppService\\ChatApp.Web.IntegrationTest\\ChatApp.Web.IntegrationTest.csproj",
+        "projectPath": "C:\\Users\\Karima\\Desktop\\503E\\github\\ChatAppService\\ChatApp.Web.IntegrationTest\\ChatApp.Web.IntegrationTest.csproj",
         "packagesPath": "C:\\Users\\Karima\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Karima\\Desktop\\503E\\github\\chatapp\\ChatAppService\\ChatApp.Web.IntegrationTest\\obj\\",
+        "outputPath": "C:\\Users\\Karima\\Desktop\\503E\\github\\ChatAppService\\ChatApp.Web.IntegrationTest\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Karima\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -26,8 +26,8 @@
           "net6.0": {
             "targetAlias": "net6.0",
             "projectReferences": {
-              "C:\\Users\\Karima\\Desktop\\503E\\github\\chatapp\\ChatAppService\\ChatApp.Web\\ChatApp.Web.csproj": {
-                "projectPath": "C:\\Users\\Karima\\Desktop\\503E\\github\\chatapp\\ChatAppService\\ChatApp.Web\\ChatApp.Web.csproj"
+              "C:\\Users\\Karima\\Desktop\\503E\\github\\ChatAppService\\ChatApp.Web\\ChatApp.Web.csproj": {
+                "projectPath": "C:\\Users\\Karima\\Desktop\\503E\\github\\ChatAppService\\ChatApp.Web\\ChatApp.Web.csproj"
               }
             }
           }
@@ -105,14 +105,14 @@
         }
       }
     },
-    "C:\\Users\\Karima\\Desktop\\503E\\github\\chatapp\\ChatAppService\\ChatApp.Web\\ChatApp.Web.csproj": {
+    "C:\\Users\\Karima\\Desktop\\503E\\github\\ChatAppService\\ChatApp.Web\\ChatApp.Web.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Karima\\Desktop\\503E\\github\\chatapp\\ChatAppService\\ChatApp.Web\\ChatApp.Web.csproj",
+        "projectUniqueName": "C:\\Users\\Karima\\Desktop\\503E\\github\\ChatAppService\\ChatApp.Web\\ChatApp.Web.csproj",
         "projectName": "ChatApp.Web",
-        "projectPath": "C:\\Users\\Karima\\Desktop\\503E\\github\\chatapp\\ChatAppService\\ChatApp.Web\\ChatApp.Web.csproj",
+        "projectPath": "C:\\Users\\Karima\\Desktop\\503E\\github\\ChatAppService\\ChatApp.Web\\ChatApp.Web.csproj",
         "packagesPath": "C:\\Users\\Karima\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Karima\\Desktop\\503E\\github\\chatapp\\ChatAppService\\ChatApp.Web\\obj\\",
+        "outputPath": "C:\\Users\\Karima\\Desktop\\503E\\github\\ChatAppService\\ChatApp.Web\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Karima\\AppData\\Roaming\\NuGet\\NuGet.Config"

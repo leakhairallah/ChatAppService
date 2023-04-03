@@ -15,6 +15,13 @@ namespace ChatApp.Web.Controllers;
 
 public class ConversationController : ControllerBase
 {
+    //TODO: implement service instead of storage    
+    // private readonly IConversationsService _conversationsService;
+    //
+    // public ConversationController(IConversationsService conversationsService)
+    // {
+    //     _conversationsService = conversationsService;
+    // }
 
     private readonly IConversationStore _conversationStore;
 
@@ -26,7 +33,7 @@ public class ConversationController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<string>> StartConversation(string conversationId)
     {
-        var response =
+        var response = 
             await _conversationStore.AddConversation(conversationId, DateTimeOffset.UtcNow.ToUnixTimeSeconds());
 
         if (response == HttpStatusCode.Conflict)
