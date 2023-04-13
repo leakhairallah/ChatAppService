@@ -2,7 +2,7 @@
 
 namespace ChatApp.Web.Dtos;
 
-public record Message(
-    [Required] string ConversationId,
+public record GetMessageResponse(
     [Required] string Content,
-    [Required] string SenderUsername);
+    [Required] string SenderUsername,
+    [Required] long TimeStamp);

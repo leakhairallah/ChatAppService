@@ -1,6 +1,6 @@
 using ChatApp.Web.Storage.Entities;
 using Microsoft.Azure.Cosmos;
-namespace ChatApp.Web.Storage;
+namespace ChatApp.Web.Storage.Conversations;
 
 public class ConversationParticipantsStore : IConversationParticipantsStore
 {

@@ -1,6 +1,6 @@
 ﻿using ChatApp.Web.Dtos;
 
-namespace ChatApp.Web.Service;
+namespace ChatApp.Web.Service.Profiles;
 
 public interface IProfileService
 {

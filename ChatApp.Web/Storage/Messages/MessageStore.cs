@@ -1,10 +1,12 @@
 using System.Net;
 using Azure.Storage.Blobs;
 using ChatApp.Web.Dtos;
+using ChatApp.Web.Service.Paginator;
 using ChatApp.Web.Storage.Entities;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Serialization.HybridRow;
 
-namespace ChatApp.Web.Storage;
+namespace ChatApp.Web.Storage.Messages;
 
 //TODO: check for any missing exceptions
 
@@ -16,13 +18,12 @@ public class MessageStore : IMessageStore
     {
         _cosmosClient = cosmosClient;
     }
-
-    // DRY
-    private Container CosmosContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("messages");
+    
+    private Container MessageContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("messages");
     private Container ConversationsContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("conversations");
     private Container ProfilesContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("profiles");
     
-    public async Task<UploadMessageResponse?> PostMessageToConversation(Message msg)
+    public async Task<UploadMessageResponse?> PostMessageToConversation(PostMessage msg)
     {
         if (msg == null ||
             string.IsNullOrWhiteSpace(msg.ConversationId) ||
@@ -76,35 +77,46 @@ public class MessageStore : IMessageStore
         }
 
         var messageEntity = ToEntity(msg);
-        await CosmosContainer.CreateItemAsync(messageEntity);
+        await MessageContainer.CreateItemAsync(messageEntity);
         
         return new UploadMessageResponse(messageEntity.Timestamp);
     }
 
-    public async Task<UserConversation?> GetMessageFromConversation(string conversationId)
+    public async Task<GetConversationResponse?> GetMessageFromConversation(string conversationId, PaginationFilter filter)
     {
         try
         {
-            var parameterizedQuery = new QueryDefinition("SELECT * FROM c WHERE c.partitionKey = @conversationId")
-                .WithParameter("@conversationId", conversationId);
+            var parameterizedQuery =
+                new QueryDefinition(
+                        "SELECT * FROM c WHERE c.partitionKey = @conversationId AND c.Timestamp > @lastSeenMessage")
+                    .WithParameter("@conversationId", conversationId)
+                    .WithParameter("@lastSeenMessage", filter.LastSeenMessageTime);
+            QueryRequestOptions options = new QueryRequestOptions() { MaxItemCount = filter.PageSize };
 
-            var messages = new List<Message>();
+            using FeedIterator<MessageEntity> filteredFeed = MessageContainer.GetItemQueryIterator<MessageEntity>(
+                queryDefinition: parameterizedQuery,
+                requestOptions: options);
+                ///continuationToken: string.IsNullOrEmpty(filter.ContinuationToken) ? null : filter.ContinuationToken);
             
-            using FeedIterator<MessageEntity> filteredFeed = CosmosContainer.GetItemQueryIterator<MessageEntity>(
-                queryDefinition: parameterizedQuery
-            );
+            string newContinuationToken = "";
+            var messages = new List<GetMessageResponse>();
             
             while (filteredFeed.HasMoreResults)
             {
                 FeedResponse<MessageEntity> response = await filteredFeed.ReadNextAsync();
-                // Iterate query results
+
                 foreach (MessageEntity messageEntity in response)
                 {
                     messages.Add(ToMessage(messageEntity));
                 }
+                
+                if (response.Count > filter.PageSize - 1)
+                {
+                    newContinuationToken = response.ContinuationToken;
+                }
             }
 
-            return new UserConversation(messages);
+            return new GetConversationResponse(messages, newContinuationToken);
         }
         catch (CosmosException e)
         {
@@ -117,7 +129,7 @@ public class MessageStore : IMessageStore
         }
     }
     
-    private static MessageEntity ToEntity(Message msg)
+    private static MessageEntity ToEntity(PostMessage msg)
     {
         return new MessageEntity(
             partitionKey: msg.ConversationId, 
@@ -128,12 +140,12 @@ public class MessageStore : IMessageStore
         );
     }
 
-    private static Message ToMessage(MessageEntity msg)
+    private static GetMessageResponse ToMessage(MessageEntity msg)
     {
-        return new Message(
-            msg.partitionKey,
+        return new GetMessageResponse(
             msg.Content,
-            msg.SenderUsername
+            msg.SenderUsername,
+            msg.Timestamp
         );
     }
 }

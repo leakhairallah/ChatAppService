@@ -3,7 +3,7 @@ using ChatApp.Web.Storage.Entities;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 
-namespace ChatApp.Web.Storage;
+namespace ChatApp.Web.Storage.Conversations;
 
 public class ConversationStore: IConversationStore
 {

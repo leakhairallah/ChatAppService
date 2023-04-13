@@ -7,7 +7,7 @@ using ChatApp.Web.Storage.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 
-namespace ChatApp.Web.Storage;
+namespace ChatApp.Web.Storage.Images;
 
 public class ImageStore : IImageStore
 {

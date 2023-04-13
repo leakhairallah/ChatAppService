@@ -1,9 +1,8 @@
 ﻿using ChatApp.Web.Dtos;
-using Microsoft.AspNetCore.Mvc;
 
-namespace ChatApp.Web.Storage;
+namespace ChatApp.Web.Service.Images;
 
-public interface IImageStore
+public interface IImageService
 {
     Task<UploadImageResponse?> UpsertProfilePicture(UploadImageRequest picture);
     Task<byte[]?> GetProfilePicture(string id);

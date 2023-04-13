@@ -1,6 +1,6 @@
 using System.Net;
 
-namespace ChatApp.Web.Storage;
+namespace ChatApp.Web.Storage.Conversations;
 
 public interface IConversationStore
 {

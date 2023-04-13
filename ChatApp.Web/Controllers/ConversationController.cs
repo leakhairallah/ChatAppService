@@ -1,7 +1,7 @@
 using System.Net;
 using ChatApp.Web.Dtos;
-using ChatApp.Web.Service;
-using ChatApp.Web.Storage;
+using ChatApp.Web.Service.Conversations;
+using ChatApp.Web.Storage.Conversations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Cosmos;
 

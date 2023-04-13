@@ -1,7 +1,7 @@
 using System.Net;
-using ChatApp.Web.Storage;
+using ChatApp.Web.Storage.Conversations;
 
-namespace ChatApp.Web.Service;
+namespace ChatApp.Web.Service.Conversations;
 
 public class ConversationsService : IConversationsService
 {

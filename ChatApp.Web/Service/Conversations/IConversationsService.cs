@@ -1,6 +1,6 @@
 using System.Net;
 
-namespace ChatApp.Web.Service;
+namespace ChatApp.Web.Service.Conversations;
 
 public interface IConversationsService
 {

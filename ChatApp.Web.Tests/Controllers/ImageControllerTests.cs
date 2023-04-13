@@ -1,17 +1,13 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
-using System.Text;
-using Azure;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Newtonsoft.Json;
 using ChatApp.Web.Dtos;
-using ChatApp.Web.Storage;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Azure;
+using ChatApp.Web.Storage.Profiles;
+
 
 namespace ChatApp.Web.Tests.Controllers;
 

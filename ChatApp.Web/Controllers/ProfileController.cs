@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using Microsoft.AspNetCore.Mvc;
 using ChatApp.Web.Dtos;
-using ChatApp.Web.Service;
+using ChatApp.Web.Service.Profiles;
 
 namespace ChatApp.Web.Controllers;
 

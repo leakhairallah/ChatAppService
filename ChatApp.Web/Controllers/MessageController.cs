@@ -1,6 +1,9 @@
 using ChatApp.Web.Dtos;
-using ChatApp.Web.Service;
+using ChatApp.Web.Service.Messages;
 using Microsoft.AspNetCore.Mvc;
+using ChatApp.Web.Service.Paginator;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace ChatApp.Web.Controllers;
 
@@ -12,33 +15,42 @@ namespace ChatApp.Web.Controllers;
 public class MessageController : ControllerBase
 {
     private readonly IMessageService _messageService;
+    private readonly ILogger<MessageController> _logger;
 
-    public MessageController(IMessageService messageService)
+    public MessageController(
+        IMessageService messageService, 
+        ILogger<MessageController> logger)
     {
         _messageService = messageService;
+        _logger = logger;
     }
 
     [HttpGet("{conversationId}")]
-    public async Task<ActionResult<UserConversation>> GetMessageFromConversation(string conversationId)
+    public async Task<ActionResult<UserConversation>> GetMessageFromConversation(
+        string conversationId,
+        [FromQuery] PaginationFilter filter)
     {
-        var conversation = await _messageService.GetMessageFromConversation(conversationId);
-        if (conversation == null)
+        using (_logger.BeginScope("Fetching messages from conversation with {id}", conversationId))
         {
-            return NotFound($"A conversation with id {conversationId} was not found");
-        }
+            var messagesFromConversation = await _messageService.GetMessageFromConversation(conversationId, filter);
 
-        return Ok(conversation);
+            if (messagesFromConversation == null)
+            {
+                return NotFound("There was error while trying to get messages.");
+            } 
+            
+            return Ok(messagesFromConversation);
+        }
     }
 
     [HttpPost]
-    public async Task<ActionResult<UploadMessageResponse>> PostMessageToConversation(Message msg)
+    public async Task<ActionResult<UploadMessageResponse>> PostMessageToConversation(PostMessage msg)
     {
-        var newMessage = await _messageService.PostMessageToConversation(msg);
-
-        if (newMessage == null)
+        using (_logger.BeginScope("Queuing message"))
         {
-            return NotFound($"Tried posting a message to a non existing conversation");
+            await _messageService.EnqueueSendMessage(msg);
+
+            return Ok("Successful!");
         }
-        return Ok(new UploadMessageResponse(newMessage.timestamp));
     }
 }

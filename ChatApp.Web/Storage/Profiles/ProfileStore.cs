@@ -6,7 +6,7 @@ using Azure.Storage.Blobs;
 using ChatApp.Web.Dtos;
 using ChatApp.Web.Storage.Entities;
 
-namespace ChatApp.Web.Storage;
+namespace ChatApp.Web.Storage.Profiles;
 
 public class ProfileStore : IProfileStore
 {

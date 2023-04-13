@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ChatApp.Web.Dtos;
-using ChatApp.Web.Service;
+using ChatApp.Web.Service.Images;
 
 namespace ChatApp.Web.Controllers;
 

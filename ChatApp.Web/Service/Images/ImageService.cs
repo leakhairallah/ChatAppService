@@ -1,7 +1,7 @@
 ﻿using ChatApp.Web.Dtos;
-using ChatApp.Web.Storage;
+using ChatApp.Web.Storage.Images;
 
-namespace ChatApp.Web.Service;
+namespace ChatApp.Web.Service.Images;
 
 public class ImageService : IImageService
 {
