@@ -8,5 +8,4 @@ public interface IConversationsService
 
     public Task<HttpStatusCode> UpdateConversation(string conversationId, long time);
     
-    // TODO: Delete Conversation
 }

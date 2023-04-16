@@ -7,46 +7,32 @@ using Microsoft.Azure.Cosmos;
 
 namespace ChatApp.Web.Controllers;
 
-//TODO: use service layer in this controller
-//TODO: fix all of this controller since it was only used for testing purposes
-
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 
 public class ConversationController : ControllerBase
 {
-    //TODO: implement service instead of storage    
-    // private readonly IConversationsService _conversationsService;
-    //
-    // public ConversationController(IConversationsService conversationsService)
-    // {
-    //     _conversationsService = conversationsService;
-    // }
-
-    private readonly IConversationStore _conversationStore;
-
-    public ConversationController(IConversationStore conversationStore)
+    private readonly IConversationsService _conversationsService;
+    
+    public ConversationController(IConversationsService conversationsService)
     {
-        _conversationStore = conversationStore;
+        _conversationsService = conversationsService;
     }
 
     [HttpPost]
-    public async Task<ActionResult<string>> StartConversation(string conversationId)
+    public async Task<ActionResult<string>> StartConversation(string user1, string user2)
     {
         var response = 
-            await _conversationStore.AddConversation(conversationId, DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+            await _conversationsService.AddConversation(user1, user2, DateTimeOffset.UtcNow.ToUnixTimeSeconds());
 
-        if (response == HttpStatusCode.Conflict)
+        if (response == null)
         {
-            return Conflict("conflict");
+            return Conflict($"Failed to create conversation with {user1} and {user2}");
         }
 
-        return Ok(conversationId);
+        return Ok(response);
     }
 
-    // [HttpPut("{conversationId}")]
-    // public async Task<ActionResult<UploadMessageResponse>> UpdateConversation(Message msg)
-    // {
-    //     
-    // }
+    // GET api/conversations?username={username}&continuationToken={continuationToken}&limit={limit}&lastSeenConversationTime={lastSeenMessageTime}
+
 }

@@ -6,60 +6,60 @@ public class ConversationParticipantsStore : IConversationParticipantsStore
 {
     private readonly CosmosClient _cosmosClient;
     private Container CosmosContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("conversationParticipants");
+    private readonly IConversationStore _conversationStore;
     
-    public ConversationParticipantsStore(CosmosClient cosmosClient)
+    public ConversationParticipantsStore(CosmosClient cosmosClient, IConversationStore conversationStore)
     {
         _cosmosClient = cosmosClient;
+        _conversationStore = conversationStore;
     }
+
     
     public async Task<string> AddConversation(string participant1, string participant2)
     {
-        var id = GenerateId();
-        //TODO: check if id already exists is db
-        //TODO: check if these users already have a conversation in the db in the SERVICE LAYER
-        var conversation1 = new ConversationParticipants(
-            id: id,
-            partitionKey: id,
-            Participant: participant1
-        );
+        var id = participant1 + "_" + participant2;
+
+        var response1 = await _conversationStore.GetConversation(id);
+        if (response1 != null)
+        {
+            throw new Exception($"Conversation already exists");
+        }
+
+        var tempId = participant2 + "_" + participant1;
         
-        var conversation2 = new ConversationParticipants(
-            id: id,
-            partitionKey: id,
-            Participant: participant2
-        );
+        var response2 = await _conversationStore.GetConversation(tempId);
+        if (response2 != null)
+        {
+            throw new Exception($"Conversation already exists");
+        }
         
         try
         { 
-            await CosmosContainer.CreateItemAsync(conversation1);
+            await CosmosContainer.CreateItemAsync(ToConversation(id, participant1));
         }
 
         catch (CosmosException e)
         {
             throw new Exception($"Failed to create conversation for {participant1} with ConversationId {id}");
-
         }
         try
         { 
-            await CosmosContainer.CreateItemAsync(conversation2);
+            await CosmosContainer.CreateItemAsync(ToConversation(tempId, participant2));   
         }
 
         catch (CosmosException e)
         {
-            throw new Exception($"Failed to create conversation for {participant2} with ConversationId {id}");
-
+            throw new Exception($"Failed to create conversation for {participant2} with ConversationId {tempId}");
         }
         return id;
     }
     
-    //TODO: 
-    // public Task<HttpStatusCode> DeleteConversation(string conversationId)
-    // {
-    //     
-    // }
-    
-    string GenerateId()
+    private ConversationParticipants ToConversation(string id, string participant)
     {
-        return Guid.NewGuid().ToString("N");
+        return new ConversationParticipants(
+            id: id+"_"+participant,
+            partitionKey: id,
+            Participant: participant
+        );
     }
 }

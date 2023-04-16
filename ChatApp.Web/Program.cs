@@ -6,6 +6,7 @@ using ChatApp.Web.Configuration;
 using ChatApp.Web.Service.Profiles;
 using ChatApp.Web.Service.Images;
 using ChatApp.Web.Service.Messages;
+using ChatApp.Web.Service.Conversations;
 using ChatApp.Web.Service.ServiceBus;
 using ChatApp.Web.Storage.Conversations;
 using ChatApp.Web.Storage.Images;
@@ -30,6 +31,7 @@ builder.Services.Configure<ServiceBusSettings>(builder.Configuration.GetSection(
 builder.Services.AddSingleton<IProfileStore, ProfileStore>();
 builder.Services.AddSingleton<IImageStore, ImageStore>();
 builder.Services.AddSingleton<IConversationStore, ConversationStore>();
+builder.Services.AddSingleton<IConversationParticipantsStore, ConversationParticipantsStore>();
 builder.Services.AddSingleton<IMessageStore, MessageStore>();
 
 builder.Services.AddSingleton(sp =>
@@ -51,6 +53,8 @@ builder.Services.AddSingleton(sp =>
 builder.Services.AddSingleton<IImageService, ImageService>();
 builder.Services.AddSingleton<IProfileService, ProfileService>();
 builder.Services.AddSingleton<IMessageService, MessageService>();
+builder.Services.AddSingleton<IConversationsService, ConversationsService>();
+
 
 builder.Services.AddSingleton<ISendMessageServiceBusPublisher, SendMessageServiceBusPublisher>();
 builder.Services.AddSingleton<IMessageSerializer, JsonMessageSerializer>();    
