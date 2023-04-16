@@ -11,22 +11,22 @@ namespace ChatApp.Web.Controllers;
 //TODO: fix return messages; check if you checked for every error
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/conversation/{conversationId}/[Controller]")]
 
-public class MessageController : ControllerBase
+public class messagesController : ControllerBase
 {
     private readonly IMessageService _messageService;
-    private readonly ILogger<MessageController> _logger;
+    private readonly ILogger<messagesController> _logger;
 
-    public MessageController(
+    public messagesController(
         IMessageService messageService, 
-        ILogger<MessageController> logger)
+        ILogger<messagesController> logger)
     {
         _messageService = messageService;
         _logger = logger;
     }
 
-    [HttpGet("{conversationId}")]
+    [HttpGet]
     public async Task<ActionResult<UserConversation>> GetMessageFromConversation(
         string conversationId,
         [FromQuery] PaginationFilter filter)

@@ -5,12 +5,12 @@ using ChatApp.Web.Service.Images;
 namespace ChatApp.Web.Controllers;
 
 [ApiController]
-[Route("[controller]")]
-public class ImageController : ControllerBase
+[Route("api/[controller]")]
+public class imagesController : ControllerBase
 {
     private readonly IImageService _imageService;
 
-    public ImageController(IImageService imageService)
+    public imagesController(IImageService imageService)
     {
         _imageService = imageService;
     }
@@ -23,7 +23,7 @@ public class ImageController : ControllerBase
             var response = await _imageService.UpsertProfilePicture(request);
             if (response == null)
             {
-                return BadRequest("Could not upload profile picture");
+                return BadRequest("Could not upload profile picture.");
             }
             
             var uploadImageResponse = new UploadImageResponse(response.Id);
@@ -31,7 +31,7 @@ public class ImageController : ControllerBase
         }
         catch (ArgumentException e)
         {
-            return UnprocessableEntity("Bad input");
+            return BadRequest("Bad input.");
         }
     }
 
@@ -39,14 +39,22 @@ public class ImageController : ControllerBase
     [HttpGet("{username}")]
     public async Task<IActionResult> DownloadImage(string username)
     {
-        var image = await _imageService.GetProfilePicture(username);
-        if (image == null)
+        try
         {
-            return NotFound("Image not found");
+            var image = await _imageService.GetProfilePicture(username);
+            FileContentResult file = new FileContentResult(image, "image/jpeg");
+
+            return Ok(file);
         }
-        FileContentResult file = new FileContentResult(image, "image/jpeg");
+        catch (ArgumentException e)
+        {
+            return BadRequest("Invalid username.");
+        }
+        catch (Exception e)
+        {
+            return NotFound(e.Message);
+        }
         
-        return Ok(file);
     }
 }
 

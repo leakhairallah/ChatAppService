@@ -7,12 +7,12 @@ namespace ChatApp.Web.Controllers;
 
 
 [ApiController]
-[Route("[controller]")]
-public class ProfileController : ControllerBase
+[Route("api/[controller]")]
+public class profileController : ControllerBase
 {
     private readonly IProfileService _profileService;
 
-    public ProfileController(IProfileService profileService)
+    public profileController(IProfileService profileService)
     {
         _profileService = profileService;
     }
@@ -32,14 +32,15 @@ public class ProfileController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Profile>> AddProfile(Profile profile)
     {
-        var existingProfile = await _profileService.GetProfile(profile.Username);
-        if (existingProfile != null)
+        try
         {
-            return Conflict($"A user with username {profile.Username} already exists");
+            await _profileService.CreateProfile(profile);
+            return CreatedAtAction(nameof(GetProfile), new { username = profile.Username },
+                profile);
         }
-
-        await _profileService.CreateProfile(profile);
-        return CreatedAtAction(nameof(GetProfile), new { username = profile.Username },
-            profile);
+        catch (Exception e){
+            
+            return Conflict(e.Message);
+        }
     }
 }

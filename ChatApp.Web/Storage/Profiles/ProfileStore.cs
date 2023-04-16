@@ -1,6 +1,4 @@
-
 using System.Net;
-using Azure;
 using Microsoft.Azure.Cosmos;
 using Azure.Storage.Blobs;
 using ChatApp.Web.Dtos;
@@ -20,7 +18,7 @@ public class ProfileStore : IProfileStore
 
     // DRY
     private Container CosmosContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("profiles");
-    
+
     public async Task UpsertProfile(Profile profile)
     {
         if (profile == null ||
@@ -46,10 +44,8 @@ public class ProfileStore : IProfileStore
         {
             if (e.StatusCode == HttpStatusCode.Conflict)
             {
-                return;
+                throw new Exception($"A user with username {profile.Username} already exists");
             }
-
-            throw;
         }
     }
     
@@ -64,7 +60,7 @@ public class ProfileStore : IProfileStore
             throw new ArgumentException($"Invalid profile {profile}", nameof(profile));
         }
     }
-    
+
     public async Task<Profile?> GetProfile(string username)
     {
         try

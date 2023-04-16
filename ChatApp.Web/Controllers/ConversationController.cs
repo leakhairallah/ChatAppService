@@ -10,11 +10,11 @@ namespace ChatApp.Web.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 
-public class ConversationController : ControllerBase
+public class conversationsController : ControllerBase
 {
     private readonly IConversationsService _conversationsService;
     
-    public ConversationController(IConversationsService conversationsService)
+    public conversationsController(IConversationsService conversationsService)
     {
         _conversationsService = conversationsService;
     }

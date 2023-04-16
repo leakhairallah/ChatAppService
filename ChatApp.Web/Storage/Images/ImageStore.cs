@@ -4,8 +4,6 @@ using Microsoft.Azure.Cosmos;
 using Azure.Storage.Blobs;
 using ChatApp.Web.Dtos;
 using ChatApp.Web.Storage.Entities;
-using Microsoft.AspNetCore.Mvc;
-
 
 namespace ChatApp.Web.Storage.Images;
 
@@ -28,16 +26,23 @@ public class ImageStore : IImageStore
         {
             throw new ArgumentException($"Invalid profile picture {profilePicture}", nameof(profilePicture));
         }
-        
-        using var stream = new MemoryStream();
-        await profilePicture.File.CopyToAsync(stream);
-        stream.Position = 0;
-        
-        string imageId = Guid.NewGuid().ToString();
+
+        try
+        {
+            using var stream = new MemoryStream();
+            await profilePicture.File.CopyToAsync(stream);
+            stream.Position = 0;
+
+            string imageId = Guid.NewGuid().ToString();
 
 
-        await _blobContainerClient.UploadBlobAsync(imageId, stream);
-        return new UploadImageResponse(imageId);
+            await _blobContainerClient.UploadBlobAsync(imageId, stream);
+            return new UploadImageResponse(imageId);
+        }
+        catch (Exception e)
+        {
+            throw new Exception( e.Message);
+        }
     }
     public async Task<byte[]?> GetProfilePicture(string username)
     {
@@ -51,9 +56,7 @@ public class ImageStore : IImageStore
                     ConsistencyLevel = ConsistencyLevel.Session
                 }
             );
-
-
-
+            
             var response = await _blobContainerClient.GetBlobClient(ToProfile(entity).ProfilePictureId).DownloadAsync();
 
             await using var memoryStream = new MemoryStream();
@@ -66,7 +69,7 @@ public class ImageStore : IImageStore
         {
             if (e.StatusCode == HttpStatusCode.NotFound)
             {
-                return null;
+                throw new ArgumentException("Username not found");
             }
 
             throw;
@@ -75,7 +78,7 @@ public class ImageStore : IImageStore
         {
             if (e.Status == 404)
             {
-                return null;
+                throw new Exception("Could not download image.");
             }
             throw;
         }
@@ -83,17 +86,16 @@ public class ImageStore : IImageStore
 
     public async Task DeleteProfilePicture(string id)
     {
-        BlobClient blobClient = _blobContainerClient.GetBlobClient(id);
-        
         try
         {
+            var blobClient = _blobContainerClient.GetBlobClient(id);
             await blobClient.DeleteIfExistsAsync();
         }
         catch (RequestFailedException e)
         {
             if (e.Status == 404)
             {
-                return;
+                throw new Exception("Invalid id");
             }
 
             throw;
