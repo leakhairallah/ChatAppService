@@ -1,4 +1,5 @@
 using System.Net;
+using ChatApp.Web.Storage.Entities;
 
 namespace ChatApp.Web.Storage.Conversations;
 

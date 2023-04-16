@@ -56,7 +56,6 @@ public class MessageStore : IMessageStore
         
         try
         {
-            
             await ProfilesContainer.ReadItemAsync<ProfileEntity>(
                 id: msg.SenderUsername,
                 partitionKey: new PartitionKey(msg.SenderUsername),
