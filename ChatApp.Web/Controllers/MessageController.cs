@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using ChatApp.Web.Service.Paginator;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using System.Net;
 
 namespace ChatApp.Web.Controllers;
 
@@ -32,7 +33,8 @@ public class MessageController : ControllerBase
     {
         using (_logger.BeginScope("Fetching messages from conversation with {id}", conversationId))
         {
-            var messagesFromConversation = await _messageService.GetMessageFromConversation(conversationId, filter);
+            var request = HttpContext.Request;
+            var messagesFromConversation = await _messageService.GetMessageFromConversation(conversationId, filter, request);
 
             if (messagesFromConversation == null)
             {

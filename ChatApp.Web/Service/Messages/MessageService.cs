@@ -1,7 +1,10 @@
+using System.Web;
 using ChatApp.Web.Dtos;
 using ChatApp.Web.Storage.Messages;
 using ChatApp.Web.Service.ServiceBus;
 using ChatApp.Web.Service.Paginator;
+using Newtonsoft.Json;
+
 
 namespace ChatApp.Web.Service.Messages;
 
@@ -28,27 +31,27 @@ public class MessageService : IMessageService
         return await _messageStore.PostMessageToConversation(msg);
     }
 
-    public async Task<UserConversation?> GetMessageFromConversation(string conversationId, PaginationFilter filter)
+    public async Task<UserConversation?> GetMessageFromConversation(string conversationId, PaginationFilter filter, HttpRequest request)
     {
         
         var conversation = await _messageStore.GetMessageFromConversation(conversationId, filter);
 
         if (conversation != null)
         {
-            if (string.IsNullOrWhiteSpace(conversation.continuationToken))
-            {
-                return new UserConversation(conversation.Messages,
-                    GetConversationMessagesApiUrl(conversationId, filter.PageSize, filter.LastSeenMessageTime,
-                        filter.ContinuationToken));
-            }
+            return new UserConversation(conversation.Messages,
+                GetConversationMessagesApiNextUri(request, conversationId, filter.PageSize,
+                    filter.LastSeenMessageTime, conversation.continuationToken));
         }
         
         return null;
 
     }
     
-    private static string GetConversationMessagesApiUrl(string conversationId, int limit, long lastSeenMessageTime, string continuationToken)
+    private static string GetConversationMessagesApiNextUri(HttpRequest request, string conversationId, int limit, long lastSeenMessageTime, string continuationToken)
     {
-        return $"/Messages/{conversationId}/messages?&limit={limit}&lastSeenMessageTime={lastSeenMessageTime}&continuationToken={continuationToken}";
+        UriBuilder nextUri = new UriBuilder(request.Scheme, request.Host.Host);
+        nextUri.Path = request.Path;
+        nextUri.Query = $"continuationToken={HttpUtility.UrlEncode(continuationToken)}&lastSeenMessageTime={lastSeenMessageTime}&conversationId={conversationId}&limit={limit}";
+        return nextUri.Uri.ToString();
     }
 }

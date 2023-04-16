@@ -1,10 +1,9 @@
 using System.Net;
-using Azure.Storage.Blobs;
+using System.Web;
 using ChatApp.Web.Dtos;
 using ChatApp.Web.Service.Paginator;
 using ChatApp.Web.Storage.Entities;
 using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Cosmos.Serialization.HybridRow;
 
 namespace ChatApp.Web.Storage.Messages;
 
@@ -92,31 +91,30 @@ public class MessageStore : IMessageStore
                     .WithParameter("@conversationId", conversationId)
                     .WithParameter("@lastSeenMessage", filter.LastSeenMessageTime);
             QueryRequestOptions options = new QueryRequestOptions() { MaxItemCount = filter.PageSize };
-
+            
             using FeedIterator<MessageEntity> filteredFeed = MessageContainer.GetItemQueryIterator<MessageEntity>(
                 queryDefinition: parameterizedQuery,
-                requestOptions: options);
-                ///continuationToken: string.IsNullOrEmpty(filter.ContinuationToken) ? null : filter.ContinuationToken);
+                requestOptions: options,
+                continuationToken: string.IsNullOrEmpty(filter.ContinuationToken) ? null : HttpUtility.UrlDecode(filter.ContinuationToken).Replace("\\", ""));
             
+            List<GetMessageResponse> messageResponses = new List<GetMessageResponse>();
             string newContinuationToken = "";
-            var messages = new List<GetMessageResponse>();
             
+            Console.WriteLine("Fetched results...");
             while (filteredFeed.HasMoreResults)
             {
-                FeedResponse<MessageEntity> response = await filteredFeed.ReadNextAsync();
-
-                foreach (MessageEntity messageEntity in response)
+                FeedResponse<MessageEntity> messageEntities = await filteredFeed.ReadNextAsync();
+                messageResponses.AddRange(ToMessages(messageEntities));
+                Console.WriteLine("Added Results");
+                newContinuationToken = messageEntities.ContinuationToken;
+                Console.WriteLine("ContinuationToken: " + newContinuationToken);
+                if (messageResponses.Count >= filter.PageSize)
                 {
-                    messages.Add(ToMessage(messageEntity));
-                }
-                
-                if (response.Count > filter.PageSize - 1)
-                {
-                    newContinuationToken = response.ContinuationToken;
+                    break;
                 }
             }
 
-            return new GetConversationResponse(messages, newContinuationToken);
+            return new GetConversationResponse(messageResponses, newContinuationToken);
         }
         catch (CosmosException e)
         {
@@ -140,12 +138,12 @@ public class MessageStore : IMessageStore
         );
     }
 
-    private static GetMessageResponse ToMessage(MessageEntity msg)
+    private static IEnumerable<GetMessageResponse> ToMessages(IEnumerable<MessageEntity> messages)
     {
-        return new GetMessageResponse(
+        return messages.Select(msg => new GetMessageResponse(
             msg.Content,
             msg.SenderUsername,
             msg.Timestamp
-        );
+        ));
     }
 }
