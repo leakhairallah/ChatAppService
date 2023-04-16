@@ -3,8 +3,6 @@ using ChatApp.Web.Dtos;
 using ChatApp.Web.Storage.Messages;
 using ChatApp.Web.Service.ServiceBus;
 using ChatApp.Web.Service.Paginator;
-using Newtonsoft.Json;
-
 
 namespace ChatApp.Web.Service.Messages;
 
@@ -49,7 +47,7 @@ public class MessageService : IMessageService
     
     private static string GetConversationMessagesApiNextUri(HttpRequest request, string conversationId, int limit, long lastSeenMessageTime, string continuationToken)
     {
-        UriBuilder nextUri = new UriBuilder(request.Scheme, request.Host.Host);
+        UriBuilder nextUri = new UriBuilder();
         nextUri.Path = request.Path;
         nextUri.Query = $"continuationToken={HttpUtility.UrlEncode(continuationToken)}&lastSeenMessageTime={lastSeenMessageTime}&conversationId={conversationId}&limit={limit}";
         return nextUri.Uri.ToString();

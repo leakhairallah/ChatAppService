@@ -18,22 +18,21 @@ public class ImageController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<UploadImageResponse>> UploadImage([FromForm] UploadImageRequest request)
     {
-        var response = new UploadImageResponse(null);
         try
         {
-            response = await _imageService.UpsertProfilePicture(request);
+            var response = await _imageService.UpsertProfilePicture(request);
+            if (response == null)
+            {
+                return BadRequest("Could not upload profile picture");
+            }
+            
+            var uploadImageResponse = new UploadImageResponse(response.Id);
+            return Ok(uploadImageResponse);
         }
         catch (ArgumentException e)
         {
             return UnprocessableEntity("Bad input");
         }
-        if (response == null)
-        {
-            return BadRequest("Could not upload profile picture");
-        }
-        
-        var uploadImageResponse = new UploadImageResponse(response.Id);
-        return Ok(uploadImageResponse);
     }
 
     

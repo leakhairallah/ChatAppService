@@ -99,15 +99,12 @@ public class MessageStore : IMessageStore
             
             List<GetMessageResponse> messageResponses = new List<GetMessageResponse>();
             string newContinuationToken = "";
-            
-            Console.WriteLine("Fetched results...");
+
             while (filteredFeed.HasMoreResults)
             {
                 FeedResponse<MessageEntity> messageEntities = await filteredFeed.ReadNextAsync();
                 messageResponses.AddRange(ToMessages(messageEntities));
-                Console.WriteLine("Added Results");
                 newContinuationToken = messageEntities.ContinuationToken;
-                Console.WriteLine("ContinuationToken: " + newContinuationToken);
                 if (messageResponses.Count >= filter.PageSize)
                 {
                     break;

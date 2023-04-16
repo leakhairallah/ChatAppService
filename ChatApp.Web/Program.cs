@@ -14,6 +14,7 @@ using ChatApp.Web.Storage.Profiles;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -25,6 +26,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.Configure<CosmosSettings>(builder.Configuration.GetSection("Cosmos"));
 builder.Services.Configure<BlobSettings>(builder.Configuration.GetSection("Blob"));
 builder.Services.Configure<ServiceBusSettings>(builder.Configuration.GetSection("ServiceBus"));
+
 
 // Add Services
 builder.Services.AddSingleton<IProfileStore, ProfileStore>();
@@ -40,7 +42,7 @@ builder.Services.AddSingleton(sp =>
 builder.Services.AddSingleton(sp =>
 {
     var blobOptions = sp.GetRequiredService<IOptions<BlobSettings>>();
-    return new BlobContainerClient(blobOptions.Value.ConnectionString, "profileimages");
+    return new BlobContainerClient(blobOptions.Value.ConnectionString, blobOptions.Value.BlobContainerName);
 });
 builder.Services.AddSingleton(sp =>
 {

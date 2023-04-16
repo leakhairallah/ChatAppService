@@ -38,7 +38,7 @@ public class MessageController : ControllerBase
 
             if (messagesFromConversation == null)
             {
-                return NotFound("There was error while trying to get messages.");
+                return NotFound("There was an error while trying to get messages.");
             } 
             
             return Ok(messagesFromConversation);

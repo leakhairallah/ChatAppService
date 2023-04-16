@@ -9,15 +9,15 @@ public class PaginationFilter
     
     public PaginationFilter()
     {
-        this.PageSize = 50;
-        this.ContinuationToken = "";
-        this.LastSeenMessageTime = -1;
+        PageSize = 50;
+        ContinuationToken = "";
+        LastSeenMessageTime = -1;
     }
     
     public PaginationFilter(int pageSize, string continuationToken, long lastSeenMessageTime)
     {
-        this.PageSize = pageSize;
-        this.ContinuationToken = continuationToken;
-        this.LastSeenMessageTime = lastSeenMessageTime;
+        PageSize = pageSize;
+        ContinuationToken = continuationToken;
+        LastSeenMessageTime = lastSeenMessageTime;
     }
 }
