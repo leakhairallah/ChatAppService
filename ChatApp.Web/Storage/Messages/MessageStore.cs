@@ -18,11 +18,11 @@ public class MessageStore : IMessageStore
         _cosmosClient = cosmosClient;
     }
     
-    private Container MessageContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("messages");
-    private Container ConversationsContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("conversations");
-    private Container ProfilesContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("profiles");
+    private Container MessageContainer => _cosmosClient.GetDatabase("chatapi").GetContainer("messages");
+    private Container ConversationsContainer => _cosmosClient.GetDatabase("chatapi").GetContainer("conversations");
+    private Container ProfilesContainer => _cosmosClient.GetDatabase("chatapi").GetContainer("profiles");
     
-    public async Task<UploadMessageResponse?> PostMessageToConversation(PostMessage msg)
+    public async Task<UploadMessageResponse?> PostMessageToConversation(PostMessage msg, long datetime)
     {
         if (msg == null ||
             string.IsNullOrWhiteSpace(msg.ConversationId) ||
@@ -74,7 +74,7 @@ public class MessageStore : IMessageStore
             }
         }
 
-        var messageEntity = ToEntity(msg);
+        var messageEntity = ToEntity(msg, datetime);
         await MessageContainer.CreateItemAsync(messageEntity);
         
         return new UploadMessageResponse(messageEntity.Timestamp);
@@ -123,14 +123,14 @@ public class MessageStore : IMessageStore
         }
     }
     
-    private static MessageEntity ToEntity(PostMessage msg)
+    private static MessageEntity ToEntity(PostMessage msg, long datetime)
     {
         return new MessageEntity(
             partitionKey: msg.ConversationId, 
             id: Guid.NewGuid().ToString(),
             SenderUsername: msg.SenderUsername,
             Content: msg.Content,
-            Timestamp: DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+            Timestamp: datetime
         );
     }
 

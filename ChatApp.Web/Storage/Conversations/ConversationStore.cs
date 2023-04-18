@@ -15,9 +15,9 @@ public class ConversationStore: IConversationStore
     }
     
 
-    private Container CosmosContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("conversations");
+    private Container CosmosContainer => _cosmosClient.GetDatabase("chatapi").GetContainer("conversations");
 
-    public async Task<HttpStatusCode> AddConversation(string conversationId, long time)
+    public async Task<string> AddConversation(string conversationId, long time)
     {
         try
         {
@@ -25,17 +25,12 @@ public class ConversationStore: IConversationStore
 
             await CosmosContainer.CreateItemAsync(conversation);
 
-            return HttpStatusCode.OK;
+            return conversationId;
         }
 
         catch (CosmosException e)
         {
-            if (e.StatusCode == HttpStatusCode.Conflict)
-            {
-                return e.StatusCode;
-            }
-
-            throw;
+            throw e;
         }
     }
 

@@ -28,9 +28,9 @@ public class MessageService : IMessageService
         await _sendMessageServiceBusPublisher.Send(msg);
     }
     
-    public async Task<UploadMessageResponse?> PostMessageToConversation(PostMessage msg)
+    public async Task<UploadMessageResponse?> PostMessageToConversation(PostMessage msg, long datetime)
     {
-        var response = await _messageStore.PostMessageToConversation(msg);
+        var response = await _messageStore.PostMessageToConversation(msg, datetime);
         if (response != null)
         {
             await _conversationStore.UpdateConversation(msg.ConversationId, response.timestamp);

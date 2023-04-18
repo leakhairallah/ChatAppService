@@ -39,8 +39,8 @@ public class messagesController : ControllerBase
             if (messagesFromConversation == null)
             {
                 return NotFound("There was an error while trying to get messages.");
-            } 
-            
+            }
+
             return Ok(messagesFromConversation);
         }
     }
