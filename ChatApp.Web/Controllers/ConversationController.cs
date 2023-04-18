@@ -43,7 +43,7 @@ public class ConversationsController : ControllerBase
 
             if (userConversations == null)
             {
-                return NotFound("There was error while trying to get messages.");
+                return NotFound("There was error while trying to get conversations.");
             } 
             
             return Ok(userConversations);

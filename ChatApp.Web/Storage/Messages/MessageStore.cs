@@ -18,9 +18,9 @@ public class MessageStore : IMessageStore
         _cosmosClient = cosmosClient;
     }
     
-    private Container MessageContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("messages");
-    private Container ConversationsContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("conversations");
-    private Container ProfilesContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("profiles");
+    private Container MessageContainer => _cosmosClient.GetDatabase("chatapi").GetContainer("messages");
+    private Container ConversationsContainer => _cosmosClient.GetDatabase("chatapi").GetContainer("conversations");
+    private Container ProfilesContainer => _cosmosClient.GetDatabase("chatapi").GetContainer("profiles");
     
     public async Task<UploadMessageResponse?> PostMessageToConversation(PostMessage msg, long datetime)
     {
