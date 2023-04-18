@@ -35,6 +35,9 @@ public class profileController : ControllerBase
         try
         {
             await _profileService.CreateProfile(profile);
+            Console.WriteLine("In Profile Controller");
+            Console.WriteLine(profile.ProfilePictureId);
+            Console.WriteLine(profile.Username);
             return CreatedAtAction(nameof(GetProfile), new { username = profile.Username },
                 profile);
         }

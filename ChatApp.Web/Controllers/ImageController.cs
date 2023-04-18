@@ -27,6 +27,8 @@ public class imagesController : ControllerBase
             }
             
             var uploadImageResponse = new UploadImageResponse(response.Id);
+            Console.WriteLine("In image controller");
+            Console.WriteLine(uploadImageResponse.Id);
             return Ok(uploadImageResponse);
         }
         catch (ArgumentException e)
