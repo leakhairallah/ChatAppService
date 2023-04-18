@@ -3,20 +3,24 @@ using ChatApp.Web.Dtos;
 using ChatApp.Web.Storage.Messages;
 using ChatApp.Web.Service.ServiceBus;
 using ChatApp.Web.Service.Paginator;
+using ChatApp.Web.Storage.Conversations;
 
 namespace ChatApp.Web.Service.Messages;
 
 public class MessageService : IMessageService
 {
     private readonly IMessageStore _messageStore;
+    private readonly IConversationStore _conversationStore;
     private readonly ISendMessageServiceBusPublisher _sendMessageServiceBusPublisher;
     
     public MessageService(
         IMessageStore messageStore,
+        IConversationStore conversationStore,
         ISendMessageServiceBusPublisher sendMessageServiceBusPublisher)
     {
         _messageStore = messageStore;
         _sendMessageServiceBusPublisher = sendMessageServiceBusPublisher;
+        _conversationStore = conversationStore;
     }
     
     public async Task EnqueueSendMessage(PostMessage msg)
@@ -26,7 +30,13 @@ public class MessageService : IMessageService
     
     public async Task<UploadMessageResponse?> PostMessageToConversation(PostMessage msg, long datetime)
     {
-        return await _messageStore.PostMessageToConversation(msg, datetime);
+        var response = await _messageStore.PostMessageToConversation(msg);
+        if (response != null)
+        {
+            await _conversationStore.UpdateConversation(msg.ConversationId, response.timestamp);
+        }
+
+        return response;
     }
 
     public async Task<UserConversation?> GetMessageFromConversation(string conversationId, PaginationFilter filter, HttpRequest request)
