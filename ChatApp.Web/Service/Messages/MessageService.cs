@@ -30,7 +30,7 @@ public class MessageService : IMessageService
     
     public async Task<UploadMessageResponse?> PostMessageToConversation(PostMessage msg, long datetime)
     {
-        var response = await _messageStore.PostMessageToConversation(msg);
+        var response = await _messageStore.PostMessageToConversation(msg, datetime);
         if (response != null)
         {
             await _conversationStore.UpdateConversation(msg.ConversationId, response.timestamp);
