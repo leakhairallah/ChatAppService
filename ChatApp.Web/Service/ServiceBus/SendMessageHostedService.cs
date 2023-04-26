@@ -44,7 +44,7 @@ public class SendMessageHostedService : IHostedService
         Console.WriteLine($"Received: {data}");
 
         var message = _messageSerializer.DeserializeMessage(data);
-        await _messageService.PostMessageToConversation(message, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+        await _messageService.PostMessageToConversation(message.ConversationId, message.Message, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
 
         await args.CompleteMessageAsync(args.Message);
     }

@@ -34,27 +34,27 @@ public class ConversationsService : IConversationsService
     
     public async Task<string> AddConversation(StartConversation conversation)
     {
-        if (conversation.participants.Length != 2)
+        if (conversation.Participants.Length != 2)
         {
             throw new ArgumentException("Invalid input, need 2 usernames");
         }
-        if (string.IsNullOrWhiteSpace(conversation.participants[0]) ||
-            string.IsNullOrWhiteSpace(conversation.participants[1]) ||
+        if (string.IsNullOrWhiteSpace(conversation.Participants[0]) ||
+            string.IsNullOrWhiteSpace(conversation.Participants[1]) ||
             string.IsNullOrWhiteSpace(conversation.FirstMessage.SenderUsername) ||
-            string.IsNullOrWhiteSpace(conversation.FirstMessage.Content))
+            string.IsNullOrWhiteSpace(conversation.FirstMessage.Text))
         {
             throw new ArgumentException($"Invalid input");
         }
         
-        var profile1 = _profileService.GetProfile(conversation.participants[0]);
-        var profile2 = _profileService.GetProfile(conversation.participants[1]);
+        var profile1 = _profileService.GetProfile(conversation.Participants[0]);
+        var profile2 = _profileService.GetProfile(conversation.Participants[1]);
         if (profile1 == null)
         {
-            throw new ArgumentException($"A User with username {conversation.participants[0]} was not found");
+            throw new ArgumentException($"A User with username {conversation.Participants[0]} was not found");
         }
         if (profile2 == null)
         {
-            throw new ArgumentException($"A User with username {conversation.participants[1]} was not found");
+            throw new ArgumentException($"A User with username {conversation.Participants[1]} was not found");
         }
         
         // if (time > DateTimeOffset.UtcNow.ToUnixTimeSeconds() || time == null)
@@ -62,18 +62,16 @@ public class ConversationsService : IConversationsService
         //     throw new ArgumentException("Invalid Time: {time}");
         // }
 
-        string conversationId = conversation.participants[0] + "_" + conversation.participants[1];
+        string conversationId = conversation.Participants[0] + "_" + conversation.Participants[1];
         
-        var updatedMessage = conversation.FirstMessage with { ConversationId = conversationId };
-
         var datetime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
         var createResponse = await _conversationStore.AddConversation(conversationId, datetime);
 
         if (createResponse == conversationId)
         {
-            var messageResponse = await _messageService.PostMessageToConversation(updatedMessage, datetime);
-            var response = await _conversationParticipantsStore.AddConversation(conversation.participants[0], conversation.participants[1], conversationId);
+            var messageResponse = await _messageService.PostMessageToConversation(conversationId, conversation.FirstMessage, datetime);
+            var response = await _conversationParticipantsStore.AddConversation(conversation.Participants[0], conversation.Participants[1], conversationId);
             if (response == conversationId)
             {
                 return conversationId;

@@ -22,11 +22,11 @@ public class MessageStore : IMessageStore
     private Container ConversationsContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("conversations");
     private Container ProfilesContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("profiles");
     
-    public async Task<UploadMessageResponse?> PostMessageToConversation(PostMessage msg, long datetime)
+    public async Task<UploadMessageResponse?> PostMessageToConversation(string conversationId, SendMessageRequest msg, long datetime)
     {
         if (msg == null ||
-            string.IsNullOrWhiteSpace(msg.ConversationId) ||
-            string.IsNullOrWhiteSpace(msg.Content) ||
+            string.IsNullOrWhiteSpace(msg.Id) ||
+            string.IsNullOrWhiteSpace(msg.Text) ||
             string.IsNullOrWhiteSpace(msg.SenderUsername)
            )
         {
@@ -36,8 +36,8 @@ public class MessageStore : IMessageStore
         try
         {
             await ConversationsContainer.ReadItemAsync<ConversationEntity>(
-                id: msg.ConversationId,
-                partitionKey: new PartitionKey(msg.ConversationId),
+                id: conversationId,
+                partitionKey: new PartitionKey(conversationId),
                 new ItemRequestOptions
                 {
                     ConsistencyLevel = ConsistencyLevel.Session
@@ -74,7 +74,7 @@ public class MessageStore : IMessageStore
             }
         }
 
-        var messageEntity = ToEntity(msg, datetime);
+        var messageEntity = ToEntity(conversationId, msg, datetime);
         await MessageContainer.CreateItemAsync(messageEntity);
         
         return new UploadMessageResponse(messageEntity.Timestamp);
@@ -123,13 +123,13 @@ public class MessageStore : IMessageStore
         }
     }
     
-    private static MessageEntity ToEntity(PostMessage msg, long datetime)
+    private static MessageEntity ToEntity(string conversationId, SendMessageRequest msg, long datetime)
     {
         return new MessageEntity(
-            partitionKey: msg.ConversationId, 
-            id: Guid.NewGuid().ToString(),
+            partitionKey: conversationId, 
+            id: msg.Id,
             SenderUsername: msg.SenderUsername,
-            Content: msg.Content,
+            Content: msg.Text,
             Timestamp: datetime
         );
     }

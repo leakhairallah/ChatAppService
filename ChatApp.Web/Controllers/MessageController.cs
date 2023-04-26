@@ -46,16 +46,16 @@ public class messagesController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<UploadMessageResponse>> PostMessageToConversation(PostMessage msg)
+    public async Task<ActionResult<UploadMessageResponse>> PostMessageToConversation(string conversationId, [FromBody] SendMessageRequest msg)
     {
         using (_logger.BeginScope("Queuing message"))
         {
             try
             {
-                await _messageService.EnqueueSendMessage(msg);
+                await _messageService.EnqueueSendMessage(conversationId, msg);
                 return Ok("Successful!");
             }
-            catch (ArgumentException e)
+            catch (Exception e)
             {
                 return NotFound(e.Message);
             }

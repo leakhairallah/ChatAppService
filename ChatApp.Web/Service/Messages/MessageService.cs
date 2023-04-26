@@ -23,17 +23,17 @@ public class MessageService : IMessageService
         _conversationStore = conversationStore;
     }
     
-    public async Task EnqueueSendMessage(PostMessage msg)
+    public async Task EnqueueSendMessage(string conversationId, SendMessageRequest msg)
     {
-        await _sendMessageServiceBusPublisher.Send(msg);
+        await _sendMessageServiceBusPublisher.Send(conversationId, msg);
     }
     
-    public async Task<UploadMessageResponse?> PostMessageToConversation(PostMessage msg, long datetime)
+    public async Task<UploadMessageResponse?> PostMessageToConversation(string conversationId, SendMessageRequest msg, long datetime)
     {
-        var response = await _messageStore.PostMessageToConversation(msg, datetime);
+        var response = await _messageStore.PostMessageToConversation(conversationId, msg, datetime);
         if (response != null)
         {
-            await _conversationStore.UpdateConversation(msg.ConversationId, response.timestamp);
+            await _conversationStore.UpdateConversation(conversationId, response.timestamp);
         }
 
         return response;

@@ -4,5 +4,5 @@ namespace ChatApp.Web.Service.ServiceBus;
 
 public interface ISendMessageServiceBusPublisher
 {
-    Task Send(PostMessage msg);
+    Task Send(string conversationId, SendMessageRequest msg);
 }

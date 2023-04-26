@@ -28,7 +28,7 @@ public class ConversationsController : ControllerBase
 
         if (response == null)
         {
-            return Conflict($"Failed to create conversation with {firstConversation.participants[0]} and {firstConversation.participants[1]}");
+            return Conflict($"Failed to create conversation with {firstConversation.Participants[0]} and {firstConversation.Participants[1]}");
         }
 
         return Ok(response);

@@ -18,9 +18,10 @@ public class SendMessageServiceBusPublisher : ISendMessageServiceBusPublisher
         _sender = serviceBusClient.CreateSender(options.Value.SendMessageQueueName);
     }
 
-    public Task Send(PostMessage msg)
+    public Task Send(string conversationId, SendMessageRequest msg)
     {
-        var serialized = _messageSerializer.SerializeMessage(msg);
+        var conversationFirstMessage = new PostMessage(conversationId, msg);
+        var serialized = _messageSerializer.SerializeMessage(conversationFirstMessage);
         return _sender.SendMessageAsync(new ServiceBusMessage(serialized));
     }
 }

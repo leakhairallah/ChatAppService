@@ -130,21 +130,26 @@ public class ConversationParticipantsStore : IConversationParticipantsStore
             
             foreach (ConversationParticipants conversation in response)
             {    
+                Console.WriteLine(conversation.Participant);
                 if (conversation.Participant != participant)
                 {
+                    Console.WriteLine("Hello");
                     QueryDefinition query = new QueryDefinition("SELECT * FROM c WHERE c.partitionKey = @id")
                         .WithParameter("@id", conversation.partitionKey);
                 
                     using FeedIterator<ConversationEntity> conversationIterator =
                         CosmosContainer2.GetItemQueryIterator<ConversationEntity>(queryDefinition: query, requestOptions: options);
                     
+                    
                     while (conversationIterator.HasMoreResults)
                     {
+                        Console.WriteLine("am here");
                     
                         FeedResponse<ConversationEntity> conversationResponse =
                             await conversationIterator.ReadNextAsync();
                         foreach (ConversationEntity conversationEntity in conversationResponse)
                         {
+                            Console.WriteLine(conversationEntity.id);
                             var conv = new ConversationResponse(conversationEntity.partitionKey,
                                 conversation.Participant, conversationEntity.timestamp);
                             
