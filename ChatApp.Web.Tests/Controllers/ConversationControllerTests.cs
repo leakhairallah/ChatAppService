@@ -32,7 +32,7 @@ public class ConversationControllerTests: IClassFixture<WebApplicationFactory<Pr
     [Fact]
     public async Task AddConversation()
     {
-        var conversation = new StartConversation(new [] {"foo", "bar"}, new PostMessage("id", "Hello!", "foo"));
+        var conversation = new StartConversation( new SendMessageRequest("id", "Hello!", "foo"),new [] {"foo", "bar"});
         var response = await _httpClient.PostAsync("api/Conversations",
             new StringContent(JsonConvert.SerializeObject(conversation), Encoding.Default, "application/json"));
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
