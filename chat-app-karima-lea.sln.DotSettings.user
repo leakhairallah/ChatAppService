@@ -1,26 +1,4 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-
-	
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=595a00f3_002D323d_002D4cb3_002D9c5d_002D33c876a8a396/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="GetProfile" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;TestAncestor&gt;
-    &lt;TestId&gt;xUnit::4EFD2B11-0694-4A9C-BEE1-6BFAC9083862::net6.0::ChatApp.Web.Tests.Controllers.ImageControllerTests.AddImage_GetImage&lt;/TestId&gt;
-  &lt;/TestAncestor&gt;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=8e11a621_002Da653_002D425e_002Dac4b_002D9411aac0113e/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="AddProfile" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;Solution /&gt;
-
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=595a00f3_002D323d_002D4cb3_002D9c5d_002D33c876a8a396/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="GetProfile" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;Project Location="C:\Users\Karima\Desktop\503E\github\chatapp\ChatAppService\ChatApp.Web.Tests" Presentation="&amp;lt;ChatApp.Web.Tests&amp;gt;" /&gt;&#xD;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=8e11a621_002Da653_002D425e_002Dac4b_002D9411aac0113e/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="AddProfile" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;ProjectFile&gt;4EFD2B11-0694-4A9C-BEE1-6BFAC9083862/d:Controllers/f:ProfileControllerTests.cs&lt;/ProjectFile&gt;&#xD;
-
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=595a00f3_002D323d_002D4cb3_002D9c5d_002D33c876a8a396/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="GetProfile" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;TestAncestor&gt;
-    &lt;TestId&gt;xUnit::4EFD2B11-0694-4A9C-BEE1-6BFAC9083862::net6.0::ChatApp.Web.Tests.Controllers.ImageControllerTests.AddImage_GetImage&lt;/TestId&gt;
-  &lt;/TestAncestor&gt;
-&lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=8e11a621_002Da653_002D425e_002Dac4b_002D9411aac0113e/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="AddProfile" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
-  &lt;Solution /&gt;
-&lt;/SessionState&gt;</s:String>
-</s:String></s:String></wpf:ResourceDictionary>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=62496e40_002D63a2_002D4128_002Dba48_002D58ed57d471a2/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from Solution" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;Solution /&gt;&#xD;
+&lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>

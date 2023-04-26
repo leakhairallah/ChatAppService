@@ -13,10 +13,9 @@ namespace ChatApp.Web.Tests.Controllers;
 
 public class ProfileControllerTests: IClassFixture<WebApplicationFactory<Program>>
 {
-    
     private readonly Mock<IProfileStore> _profileStoreMock = new();
     private readonly HttpClient _httpClient;
-
+    
     public ProfileControllerTests(WebApplicationFactory<Program> factory)
     {
         _httpClient = factory.WithWebHostBuilder(builder =>
