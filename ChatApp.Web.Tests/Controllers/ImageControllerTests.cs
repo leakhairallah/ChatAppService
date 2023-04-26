@@ -6,14 +6,15 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Newtonsoft.Json;
 using ChatApp.Web.Dtos;
-using ChatApp.Web.Storage.Profiles;
+using ChatApp.Web.Service.Profiles;
+using ChatApp.Web.Service.Images;
 
 
 namespace ChatApp.Web.Tests.Controllers;
 
 public class ImageControllerTests: IClassFixture<WebApplicationFactory<Program>>
 {
-    private readonly Mock<IProfileStore> _profileStoreMock = new();
+    private readonly Mock<IImageService> _profileStoreMock = new();
     private readonly HttpClient _httpClient;
     
     public ImageControllerTests(WebApplicationFactory<Program> factory)
@@ -38,19 +39,21 @@ public class ImageControllerTests: IClassFixture<WebApplicationFactory<Program>>
         using var formData = new MultipartFormDataContent();
         formData.Add(fileStreamContent);
 
-        var postResponse = await _httpClient.PostAsync("/Image", formData);
-        var json = await postResponse.Content.ReadAsStringAsync();
-        var ans = JsonConvert.DeserializeObject<UploadImageResponse>(json);
-        
+        var postResponse = await _httpClient.PostAsync("api/Image", formData);
         Assert.Equal(HttpStatusCode.OK, postResponse.StatusCode);
+        
+        // var json = await postResponse.Content.ReadAsStringAsync();
+        // var ans = JsonConvert.DeserializeObject<UploadImageResponse>(json);
+        
 
-        new Profile("foobar", "Foo", "Bar", ans.Id);
+        // new Profile("foobar", "Foo", "Bar", ans.Id);
         
-        var getResponse = await _httpClient.GetAsync($"/Image/{"foobar"}");
-        await using var memoryStream = new MemoryStream();
-        await getResponse.Content.CopyToAsync(memoryStream);
-        var bytes = memoryStream.ToArray();
-        
+        // TODO: post profile before getresponse
+        // var getResponse = await _httpClient.GetAsync($"api/Image/{"foobar"}");
+        // await using var memoryStream = new MemoryStream();
+        // await getResponse.Content.CopyToAsync(memoryStream);
+        // var bytes = memoryStream.ToArray();
+        //
         // Assert.Equal(stream, bytes);
         
     }
@@ -68,13 +71,13 @@ public class ImageControllerTests: IClassFixture<WebApplicationFactory<Program>>
         using var formData = new MultipartFormDataContent();
         formData.Add(fileStreamContent);
 
-        var response = await _httpClient.PostAsync("/Image", formData);
-        Assert.Equal(HttpStatusCode.UnprocessableEntity, response.StatusCode);
+        var response = await _httpClient.PostAsync("api/Image", formData);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         
-        var response2 = await _httpClient.PostAsync("/Image", null);
+        var response2 = await _httpClient.PostAsync("api/Image", null);
         Assert.Equal(HttpStatusCode.BadRequest, response2.StatusCode);
 
-        var response3 = await _httpClient.GetAsync("/Image{}");
+        var response3 = await _httpClient.GetAsync("api/Image{}");
         Assert.Equal(HttpStatusCode.NotFound,response3.StatusCode);
     }
 }

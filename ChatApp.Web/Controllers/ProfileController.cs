@@ -8,11 +8,11 @@ namespace ChatApp.Web.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class profileController : ControllerBase
+public class ProfileController : ControllerBase
 {
     private readonly IProfileService _profileService;
 
-    public profileController(IProfileService profileService)
+    public ProfileController(IProfileService profileService)
     {
         _profileService = profileService;
     }

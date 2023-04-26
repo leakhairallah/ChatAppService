@@ -2,6 +2,7 @@ using System.Web;
 using ChatApp.Web.Dtos;
 using ChatApp.Web.Service.Paginator;
 using ChatApp.Web.Storage.Entities;
+using ChatApp.Web.Storage.Profiles;
 using Microsoft.Azure.Cosmos;
 namespace ChatApp.Web.Storage.Conversations;
 
@@ -12,13 +13,15 @@ public class ConversationParticipantsStore : IConversationParticipantsStore
     private Container CosmosContainer => _cosmosClient.GetDatabase("chatapi").GetContainer("conversationParticipants");
     // private Container CosmosContainer2 => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("conversations");
     private Container CosmosContainer2 => _cosmosClient.GetDatabase("chatapi").GetContainer("conversations");
+    private readonly IProfileStore _profileStore;
     private readonly IConversationStore _conversationStore;
     
     
-    public ConversationParticipantsStore(CosmosClient cosmosClient, IConversationStore conversationStore)
+    public ConversationParticipantsStore(CosmosClient cosmosClient, IConversationStore conversationStore, IProfileStore profileStore)
     {
         _cosmosClient = cosmosClient;
         _conversationStore = conversationStore;
+        _profileStore = profileStore;
     }
     
     public async Task<List<ConversationParticipants>?> GetConversation(string id)
@@ -151,10 +154,10 @@ public class ConversationParticipantsStore : IConversationParticipantsStore
                         foreach (ConversationEntity conversationEntity in conversationResponse)
                         {
                             Console.WriteLine(conversationEntity.id);
-                            var conv = new ConversationResponse(conversationEntity.partitionKey,
-                                conversation.Participant, conversationEntity.timestamp);
+                            var profile = _profileStore.GetProfile(conversation.Participant);
+                            var conv = new ConversationResponse(conversationEntity.partitionKey, conversationEntity.timestamp, profile.Result);
                             
-                            Console.WriteLine(conv.ConversationId);
+                            Console.WriteLine(conv.Id);
                             userConversations.Add(conv);
                         }
                         newContinuationToken = conversationResponse.ContinuationToken;
@@ -180,12 +183,12 @@ public class ConversationParticipantsStore : IConversationParticipantsStore
         );
     }
     
-    private static IEnumerable<ConversationResponse> ToConversations(IEnumerable<ConversationParticipants> conversations, long timestamp)
-    {
-        return conversations.Select(conv => new ConversationResponse(
-            conv.partitionKey,
-            conv.Participant,
-            timestamp)
-        );
-    }
+    // private static IEnumerable<ConversationResponse> ToConversations(IEnumerable<ConversationParticipants> conversations, long timestamp)
+    // {
+    //     return conversations.Select(conv => new ConversationResponse(
+    //         conv.partitionKey,
+    //         conv.Profile,
+    //         timestamp)
+    //     );
+    // }
 }
