@@ -50,9 +50,15 @@ public class messagesController : ControllerBase
     {
         using (_logger.BeginScope("Queuing message"))
         {
-            await _messageService.EnqueueSendMessage(msg);
-
-            return Ok("Successful!");
+            try
+            {
+                await _messageService.EnqueueSendMessage(msg);
+                return Ok("Successful!");
+            }
+            catch (ArgumentException e)
+            {
+                return NotFound(e.Message);
+            }
         }
     }
 }

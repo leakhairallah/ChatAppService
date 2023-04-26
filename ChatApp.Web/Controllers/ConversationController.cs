@@ -21,14 +21,14 @@ public class ConversationsController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult<string>> StartConversation([FromQuery] string[] participants, [FromBody] PostMessage message)
+    public async Task<ActionResult<string>> StartConversation([FromBody] StartConversation firstConversation)
     {
         var response = 
-            await _conversationsService.AddConversation(participants[0], participants[1], message);
+            await _conversationsService.AddConversation(firstConversation);
 
         if (response == null)
         {
-            return Conflict($"Failed to create conversation with {participants[0]} and {participants[1]}");
+            return Conflict($"Failed to create conversation with {firstConversation.participants[0]} and {firstConversation.participants[1]}");
         }
 
         return Ok(response);

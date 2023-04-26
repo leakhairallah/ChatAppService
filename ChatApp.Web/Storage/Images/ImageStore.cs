@@ -18,7 +18,7 @@ public class ImageStore : IImageStore
         _blobContainerClient = blobContainerClient;
     }
     
-    private Container CosmosContainer => _cosmosClient.GetDatabase("chatapi").GetContainer("profiles");
+    private Container CosmosContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("profiles");
 
     public async Task<UploadImageResponse?> UpsertProfilePicture(UploadImageRequest profilePicture)
     {

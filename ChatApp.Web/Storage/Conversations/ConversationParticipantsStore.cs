@@ -9,8 +9,8 @@ namespace ChatApp.Web.Storage.Conversations;
 public class ConversationParticipantsStore : IConversationParticipantsStore
 {
     private readonly CosmosClient _cosmosClient;
-    private Container CosmosContainer => _cosmosClient.GetDatabase("chatapi").GetContainer("conversationParticipants");
-    private Container CosmosContainer2 => _cosmosClient.GetDatabase("chatapi").GetContainer("conversations");
+    private Container CosmosContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("conversationParticipants");
+    private Container CosmosContainer2 => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("conversations");
     private readonly IConversationStore _conversationStore;
     
     
