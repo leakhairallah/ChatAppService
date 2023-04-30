@@ -11,13 +11,12 @@ using ChatApp.Web.Service.Messages;
 using ChatApp.Web.Service.Profiles;
 using Xunit.Abstractions;
 
-
 namespace ChatApp.Web.Tests.Controllers;
 
 public class ConversationsControllerTests: IClassFixture<WebApplicationFactory<Program>>
 {
     private readonly ITestOutputHelper _testOutputHelper;
-    private readonly Mock<IConversationsService> _conversationServiceMock = new();
+    private readonly Mock<IConversationsService> _conversationsServiceMock = new();
     private readonly Mock<IProfileService> _profileServiceMock = new();
     private readonly Mock<IMessageService> _messageServiceMock = new();
     private readonly HttpClient _httpClient;
@@ -28,7 +27,7 @@ public class ConversationsControllerTests: IClassFixture<WebApplicationFactory<P
         _httpClient = factory.WithWebHostBuilder(builder =>
         {
             builder.ConfigureTestServices(services => { 
-                services.AddSingleton(_conversationServiceMock.Object);
+                services.AddSingleton(_conversationsServiceMock.Object);
                 services.AddSingleton(_profileServiceMock.Object);
                 services.AddSingleton(_messageServiceMock.Object);
             });
@@ -46,7 +45,7 @@ public class ConversationsControllerTests: IClassFixture<WebApplicationFactory<P
         var resp = await _httpClient.PostAsync("api/Profile",
             new StringContent(JsonConvert.SerializeObject(bar), Encoding.Default, "application/json"));
         
-        var conversation = new StartConversation( new SendMessageRequest("id", "Hello!", "foo"),new [] {"foo", "bar"});
+        var conversation = new StartConversation( new [] {"foo", "bar"}, new SendMessageRequest("id", "foo", "hello!"));
         
         var response = await _httpClient.PostAsync("api/Conversations",
             new StringContent(JsonConvert.SerializeObject(conversation), Encoding.Default, "application/json"));

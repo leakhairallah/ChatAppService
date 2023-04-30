@@ -1,3 +1,4 @@
+using System.Data;
 using System.Net;
 using System.Web;
 using ChatApp.Web.Dtos;
@@ -5,10 +6,6 @@ using ChatApp.Web.Service.Messages;
 using ChatApp.Web.Service.Paginator;
 using ChatApp.Web.Service.Profiles;
 using ChatApp.Web.Storage.Conversations;
-using ChatApp.Web.Storage.Entities;
-using ChatApp.Web.Storage.Profiles;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Azure.Cosmos.Linq;
 
 namespace ChatApp.Web.Service.Conversations;
@@ -33,48 +30,57 @@ public class ConversationsService : IConversationsService
         _messageService = messageService;
     }
     
-    public async Task<string> AddConversation(StartConversation conversation)
+    public async Task<StartConversationResponse> AddConversation(StartConversation conversation)
     {
         if (conversation.Participants.Length != 2)
         {
-            throw new ArgumentException("Invalid input, need 2 usernames");
+            throw new ArgumentOutOfRangeException("Invalid input, need 2 usernames");
         }
         if (string.IsNullOrWhiteSpace(conversation.Participants[0]) ||
             string.IsNullOrWhiteSpace(conversation.Participants[1]) ||
             string.IsNullOrWhiteSpace(conversation.FirstMessage.SenderUsername) ||
             string.IsNullOrWhiteSpace(conversation.FirstMessage.Text))
         {
-            throw new ArgumentException($"Invalid input");
+            throw new ArgumentNullException($"Invalid input");
         }
-        
-        var profile1 = _profileService.GetProfile(conversation.Participants[0]);
-        var profile2 = _profileService.GetProfile(conversation.Participants[1]);
-        if (profile1 == null)
+        Console.WriteLine("before get profile");
+        try
         {
-            throw new ArgumentException($"A User with username {conversation.Participants[0]} was not found");
+            await _profileService.GetProfile(conversation.Participants[0]);
         }
-        if (profile2 == null)
+        catch (Exception)
         {
-            throw new ArgumentException($"A User with username {conversation.Participants[1]} was not found");
+            throw new ArgumentException($"A User with username {conversation.Participants[0]} was not found");   
         }
-
+        try
+        {
+            await _profileService.GetProfile(conversation.Participants[1]);
+        }
+        catch (Exception)
+        {
+            throw new ArgumentException($"A User with username {conversation.Participants[1]} was not found");   
+        }
+        Console.WriteLine("hello");
         string conversationId = conversation.Participants[0] + "_" + conversation.Participants[1];
         
         var datetime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-
+        
         var createResponse = await _conversationStore.AddConversation(conversationId, datetime);
-
+        
         if (createResponse == conversationId)
         {
-            var messageResponse = await _messageService.PostMessageToConversation(conversationId, conversation.FirstMessage, datetime);
+            
+            var messageResponse = await _messageService.PostMessageToConversation(conversationId, new SendMessageRequest(conversationId, conversation.FirstMessage.SenderUsername, conversation.FirstMessage.Text), datetime);
+            
             var response = await _conversationParticipantsStore.AddConversation(conversation.Participants[0], conversation.Participants[1], conversationId);
             if (response == conversationId)
             {
-                return conversationId;
+                return new StartConversationResponse(conversationId, datetime);
             }
             else
             {
                 throw new Exception($"Error creating conversation");
+                
             }
         }
         else

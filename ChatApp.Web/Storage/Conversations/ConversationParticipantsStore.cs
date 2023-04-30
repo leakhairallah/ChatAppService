@@ -12,10 +12,10 @@ namespace ChatApp.Web.Storage.Conversations;
 public class ConversationParticipantsStore : IConversationParticipantsStore
 {
     private readonly CosmosClient _cosmosClient;
-    private Container CosmosContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("conversationParticipants");
-    //private Container CosmosContainer => _cosmosClient.GetDatabase("chatapi").GetContainer("conversationParticipants");
-    private Container CosmosContainer2 => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("conversations");
-    //private Container CosmosContainer2 => _cosmosClient.GetDatabase("chatapi").GetContainer("conversations");
+    // private Container CosmosContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("conversationParticipants");
+    private Container CosmosContainer => _cosmosClient.GetDatabase("chatapi").GetContainer("conversationParticipants");
+    // private Container CosmosContainer2 => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("conversations");
+    private Container CosmosContainer2 => _cosmosClient.GetDatabase("chatapi").GetContainer("conversations");
     private readonly IProfileStore _profileStore;
     private readonly IConversationStore _conversationStore;
     
@@ -52,6 +52,7 @@ public class ConversationParticipantsStore : IConversationParticipantsStore
     public async Task<string> AddConversation(string participant1, string participant2, string id)
     {
         var response1 = await GetConversation(id);
+        
         if (response1 != null && response1.Count != 0)
         {
             if (response1.Count == 1)
@@ -86,12 +87,13 @@ public class ConversationParticipantsStore : IConversationParticipantsStore
         }
 
         var tempId = participant2 + "_" + participant1;
-        
         var response2 = await GetConversation(tempId);
+        Console.WriteLine(response2);
         if (response2 != null)
         {
             throw new Exception($"Conversation already exists");
         }
+        
         
         try
         { 

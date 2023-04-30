@@ -15,8 +15,8 @@ public class ConversationStore: IConversationStore
     }
     
 
-    //private Container CosmosContainer => _cosmosClient.GetDatabase("chatapi").GetContainer("conversations");
-    private Container CosmosContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("conversations");
+    private Container CosmosContainer => _cosmosClient.GetDatabase("chatapi").GetContainer("conversations");
+    // private Container CosmosContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("conversations");
 
     public async Task<string> AddConversation(string conversationId, long time)
     {

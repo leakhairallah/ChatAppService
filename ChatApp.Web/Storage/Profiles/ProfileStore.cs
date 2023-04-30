@@ -3,6 +3,7 @@ using Microsoft.Azure.Cosmos;
 using Azure.Storage.Blobs;
 using ChatApp.Web.Dtos;
 using ChatApp.Web.Storage.Entities;
+using Microsoft.Azure.Cosmos.Linq;
 
 namespace ChatApp.Web.Storage.Profiles;
 
@@ -17,8 +18,8 @@ public class ProfileStore : IProfileStore
     }
 
     // DRY
-    //private Container CosmosContainer => _cosmosClient.GetDatabase("chatapi").GetContainer("profiles");
-    private Container CosmosContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("profiles");
+    private Container CosmosContainer => _cosmosClient.GetDatabase("chatapi").GetContainer("profiles");
+    // private Container CosmosContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("profiles");
 
     public async Task UpsertProfile(Profile profile)
     {
@@ -76,18 +77,19 @@ public class ProfileStore : IProfileStore
             );
             return ToProfile(entity);
         }
+
         catch (CosmosException e)
         {
             if (e.StatusCode == HttpStatusCode.NotFound)
             {
-                return null;
+                throw new ArgumentException($"User does not exist.");
             }
- 
-            throw;
         }
+
+        return null;
     }
-    
-    
+
+
     public async Task DeleteProfile(string username)
     {
         try
