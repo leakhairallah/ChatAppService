@@ -3,16 +3,19 @@ using ChatApp.Web.Dtos;
 using ChatApp.Web.Service.Paginator;
 using ChatApp.Web.Storage.Entities;
 using ChatApp.Web.Storage.Profiles;
+using Microsoft.AspNetCore.Mvc.Diagnostics;
 using Microsoft.Azure.Cosmos;
+using Newtonsoft.Json.Converters;
+
 namespace ChatApp.Web.Storage.Conversations;
 
 public class ConversationParticipantsStore : IConversationParticipantsStore
 {
     private readonly CosmosClient _cosmosClient;
-    // private Container CosmosContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("conversationParticipants");
-    private Container CosmosContainer => _cosmosClient.GetDatabase("chatapi").GetContainer("conversationParticipants");
-    // private Container CosmosContainer2 => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("conversations");
-    private Container CosmosContainer2 => _cosmosClient.GetDatabase("chatapi").GetContainer("conversations");
+    private Container CosmosContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("conversationParticipants");
+    //private Container CosmosContainer => _cosmosClient.GetDatabase("chatapi").GetContainer("conversationParticipants");
+    private Container CosmosContainer2 => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("conversations");
+    //private Container CosmosContainer2 => _cosmosClient.GetDatabase("chatapi").GetContainer("conversations");
     private readonly IProfileStore _profileStore;
     private readonly IConversationStore _conversationStore;
     
@@ -37,7 +40,7 @@ public class ConversationParticipantsStore : IConversationParticipantsStore
             FeedResponse<ConversationParticipants> response = await feedIterator.ReadNextAsync();
             foreach (ConversationParticipants item in response)
             {
-                list.Add(item);
+                list?.Add(item);
             }
         }
 
@@ -110,7 +113,7 @@ public class ConversationParticipantsStore : IConversationParticipantsStore
         }
         return id;
     }
-
+    
     public async Task<GetUserConversations> GetConversations(string participant, PaginationFilter filter)
     {
         List<ConversationResponse> userConversations = new List<ConversationResponse>();
@@ -122,57 +125,54 @@ public class ConversationParticipantsStore : IConversationParticipantsStore
                 .WithParameter("@participant", '%'+participant+'%');
         QueryRequestOptions options = new QueryRequestOptions() { MaxItemCount = filter.PageSize };
         
-        Console.WriteLine(options.MaxItemCount);
-    
-        using FeedIterator<ConversationParticipants> feedIterator = CosmosContainer.GetItemQueryIterator<ConversationParticipants>(
+        using FeedIterator<ConversationEntity> feedIterator = CosmosContainer2.GetItemQueryIterator<ConversationEntity>(
             queryDefinition: parameterizedQuery,
+            requestOptions: options,
             continuationToken: string.IsNullOrEmpty(filter.ContinuationToken) ? null : HttpUtility.UrlDecode(filter.ContinuationToken).Replace("\\", ""));
 
         while (feedIterator.HasMoreResults)
         {
-            FeedResponse<ConversationParticipants> response = await feedIterator.ReadNextAsync();
-            
-            foreach (ConversationParticipants conversation in response)
-            {    
-                Console.WriteLine(conversation.Participant);
-                if (conversation.Participant != participant)
+            FeedResponse<ConversationEntity> response = await feedIterator.ReadNextAsync();
+            foreach (ConversationEntity conversation in response)
+            {
+                Console.WriteLine(conversation.partitionKey);
+                QueryDefinition query = new QueryDefinition("SELECT * FROM c WHERE c.partitionKey = @id")
+                    .WithParameter("@id", conversation.partitionKey);
+
+                using FeedIterator<ConversationParticipants> conversationIterator =
+                    CosmosContainer.GetItemQueryIterator<ConversationParticipants>(queryDefinition: query,
+                        requestOptions: options);
+
+                while (conversationIterator.HasMoreResults)
                 {
-                    Console.WriteLine("Hello");
-                    QueryDefinition query = new QueryDefinition("SELECT * FROM c WHERE c.partitionKey = @id")
-                        .WithParameter("@id", conversation.partitionKey);
-                
-                    using FeedIterator<ConversationEntity> conversationIterator =
-                        CosmosContainer2.GetItemQueryIterator<ConversationEntity>(queryDefinition: query, requestOptions: options);
-                    
-                    
-                    while (conversationIterator.HasMoreResults)
+                    FeedResponse<ConversationParticipants> conversationResponse =
+                        await conversationIterator.ReadNextAsync();
+                    foreach (ConversationParticipants convParticipants in conversationResponse)
                     {
-                        Console.WriteLine("am here");
-                    
-                        FeedResponse<ConversationEntity> conversationResponse =
-                            await conversationIterator.ReadNextAsync();
-                        foreach (ConversationEntity conversationEntity in conversationResponse)
+                        if (convParticipants.Participant != participant)
                         {
-                            Console.WriteLine(conversationEntity.id);
-                            var profile = _profileStore.GetProfile(conversation.Participant);
-                            var conv = new ConversationResponse(conversationEntity.partitionKey, conversationEntity.timestamp, profile.Result);
-                            
-                            Console.WriteLine(conv.Id);
+                            var profile = _profileStore.GetProfile(convParticipants.Participant);
+                            var conv = new ConversationResponse(conversation.partitionKey, conversation.timestamp,
+                                profile.Result);
                             userConversations.Add(conv);
                         }
-                        newContinuationToken = conversationResponse.ContinuationToken;
-                        if (conversationResponse.Count >= filter.PageSize)
-                        {
-                            break;
-                        }
-                
                     }
                 }
+            }
+            
+            newContinuationToken = response.ContinuationToken;
+            Console.WriteLine(response.Count);
+            Console.WriteLine(filter.PageSize);
+            if (response.Count >= filter.PageSize)
+            {
+                break;
             }
         }
 
         return new GetUserConversations(userConversations, newContinuationToken);
     }
+    
+    
 
     private ConversationParticipants ToConversation(string id, string participant)
     {

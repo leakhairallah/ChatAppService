@@ -11,7 +11,7 @@ public class PaginationFilter
     {
         PageSize = 50;
         ContinuationToken = "";
-        LastSeenMessageTime = -1;
+        LastSeenMessageTime = 0;
     }
     
     public PaginationFilter(int pageSize, string continuationToken, long lastSeenMessageTime)

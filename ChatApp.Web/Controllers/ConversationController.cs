@@ -49,5 +49,5 @@ public class ConversationsController : ControllerBase
             return Ok(userConversations);
         }
     }
-    // GET api/conversations?username={username}&continuationToken={continuationToken}&limit={limit}&lastSeenConversationTime={lastSeenMessageTime}
+
 }

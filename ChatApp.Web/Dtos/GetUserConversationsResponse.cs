@@ -1,5 +1,5 @@
 namespace ChatApp.Web.Dtos;
 
-public record GetUserConversations(
+public record GetUserConversationsResponse(
     List<ConversationResponse> Conversations,
-    string ContinuationToken);
+    string NextUri);

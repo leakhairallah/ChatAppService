@@ -1,4 +1,5 @@
 using System.Net;
+using System.Web;
 using ChatApp.Web.Dtos;
 using ChatApp.Web.Service.Messages;
 using ChatApp.Web.Service.Paginator;
@@ -34,10 +35,8 @@ public class ConversationsService : IConversationsService
     
     public async Task<string> AddConversation(StartConversation conversation)
     {
-        Console.WriteLine("im in service store");
         if (conversation.Participants.Length != 2)
         {
-            Console.WriteLine("im in length != 2");
             throw new ArgumentException("Invalid input, need 2 usernames");
         }
         if (string.IsNullOrWhiteSpace(conversation.Participants[0]) ||
@@ -45,7 +44,6 @@ public class ConversationsService : IConversationsService
             string.IsNullOrWhiteSpace(conversation.FirstMessage.SenderUsername) ||
             string.IsNullOrWhiteSpace(conversation.FirstMessage.Text))
         {
-            Console.WriteLine("im in is null or white space");
             throw new ArgumentException($"Invalid input");
         }
         
@@ -53,12 +51,10 @@ public class ConversationsService : IConversationsService
         var profile2 = _profileService.GetProfile(conversation.Participants[1]);
         if (profile1 == null)
         {
-            Console.WriteLine("im in profile 1 is null");
             throw new ArgumentException($"A User with username {conversation.Participants[0]} was not found");
         }
         if (profile2 == null)
         {
-            Console.WriteLine("im in profile 2 is null");
             throw new ArgumentException($"A User with username {conversation.Participants[1]} was not found");
         }
 
@@ -70,25 +66,19 @@ public class ConversationsService : IConversationsService
 
         if (createResponse == conversationId)
         {
-            Console.WriteLine("im after posting to conversation");
-            // why no sender username?
             var messageResponse = await _messageService.PostMessageToConversation(conversationId, conversation.FirstMessage, datetime);
-            Console.WriteLine("im after posting msg");
             var response = await _conversationParticipantsStore.AddConversation(conversation.Participants[0], conversation.Participants[1], conversationId);
             if (response == conversationId)
             {
-                Console.WriteLine("im after posting to conversation");
                 return conversationId;
             }
             else
             {
-                Console.WriteLine("im here1");
                 throw new Exception($"Error creating conversation");
             }
         }
         else
         {
-            Console.WriteLine("im here2");
             throw new Exception($"Error creating conversation");
         }
         
@@ -112,8 +102,21 @@ public class ConversationsService : IConversationsService
         return await _conversationStore.UpdateConversation(conversationId, time);
     }
 
-    public async Task<GetUserConversations?> GetUserConversations(string username, PaginationFilter filter, HttpRequest request)
+    public async Task<GetUserConversationsResponse?> GetUserConversations(string username, PaginationFilter filter, HttpRequest request)
     {
-        return await _conversationParticipantsStore.GetConversations(username, filter);;
+        var userConv =  await _conversationParticipantsStore.GetConversations(username, filter);
+        
+        return new GetUserConversationsResponse(userConv.Conversations,
+            GetUserConversationsApiNextUri(request, username, filter.PageSize,
+                filter.LastSeenMessageTime, userConv.ContinuationToken));
+
+    }
+    
+    private static string GetUserConversationsApiNextUri(HttpRequest request, string username, int limit, long lastSeenMessageTime, string continuationToken)
+    {
+        UriBuilder nextUri = new UriBuilder();
+        nextUri.Path = request.Path;
+        nextUri.Query = $"username={username}&limit={limit}&lastSeenMessageTime={lastSeenMessageTime}&continuationToken={HttpUtility.UrlEncode(continuationToken)}";
+        return nextUri.Uri.ToString();
     }
 }
