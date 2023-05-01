@@ -10,5 +10,5 @@ public interface IConversationsService
 
     public Task<HttpStatusCode> UpdateConversation(string conversationId, long time);
     
-    Task<GetUserConversationsResponse?> GetUserConversations(string username, PaginationFilter filter, HttpRequest request);
+    Task<GetUserConversationsResponse?> GetUserConversations(string username, PaginationFilterConversation filter, HttpRequest request);
 }

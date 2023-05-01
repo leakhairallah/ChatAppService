@@ -11,7 +11,7 @@ namespace ChatApp.Web.Controllers;
 //TODO: fix return messages; check if you checked for every error
 
 [ApiController]
-[Route("api/conversation/{conversationId}/[Controller]")]
+[Route("api/conversations/{conversationId}/[Controller]")]
 
 public class messagesController : ControllerBase
 {
@@ -35,7 +35,7 @@ public class messagesController : ControllerBase
         {
             var request = HttpContext.Request;
             var messagesFromConversation = await _messageService.GetMessageFromConversation(conversationId, filter, request);
-
+     
             if (messagesFromConversation == null)
             {
                 return NotFound("There was an error while trying to get messages.");
@@ -57,7 +57,7 @@ public class messagesController : ControllerBase
             }
             catch (Exception e)
             {
-                return NotFound(e.Message);
+                return Conflict(e.Message);
             }
         }
     }

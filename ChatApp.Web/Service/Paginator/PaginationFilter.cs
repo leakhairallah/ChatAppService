@@ -2,22 +2,22 @@ namespace ChatApp.Web.Service.Paginator;
 
 public class PaginationFilter
 {
-    public int PageSize { get; set; }
+    public int limit { get; set; }
     public string ContinuationToken { get; set; }
     
-    public long LastSeenMessageTime { get; set; }
+    public long lastSeenMessageTime { get; set; }
     
     public PaginationFilter()
     {
-        PageSize = 50;
+        limit = 50;
         ContinuationToken = "";
-        LastSeenMessageTime = 0;
+        lastSeenMessageTime = 0;
     }
     
-    public PaginationFilter(int pageSize, string continuationToken, long lastSeenMessageTime)
+    public PaginationFilter(int limit, long lastSeenMessageTime, string continuationToken)
     {
-        PageSize = pageSize;
+        this.limit = limit;
         ContinuationToken = continuationToken;
-        LastSeenMessageTime = lastSeenMessageTime;
+        this.lastSeenMessageTime = lastSeenMessageTime;
     }
 }

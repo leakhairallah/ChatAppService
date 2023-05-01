@@ -12,10 +12,10 @@ namespace ChatApp.Web.Storage.Conversations;
 public class ConversationParticipantsStore : IConversationParticipantsStore
 {
     private readonly CosmosClient _cosmosClient;
-    // private Container CosmosContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("conversationParticipants");
-    private Container CosmosContainer => _cosmosClient.GetDatabase("chatapi").GetContainer("conversationParticipants");
-    // private Container CosmosContainer2 => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("conversations");
-    private Container CosmosContainer2 => _cosmosClient.GetDatabase("chatapi").GetContainer("conversations");
+    private Container CosmosContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("conversationParticipants");
+    //private Container CosmosContainer => _cosmosClient.GetDatabase("chatapi").GetContainer("conversationParticipants");
+    private Container CosmosContainer2 => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("conversations");
+    //private Container CosmosContainer2 => _cosmosClient.GetDatabase("chatapi").GetContainer("conversations");
     private readonly IProfileStore _profileStore;
     private readonly IConversationStore _conversationStore;
     
@@ -88,7 +88,7 @@ public class ConversationParticipantsStore : IConversationParticipantsStore
 
         var tempId = participant2 + "_" + participant1;
         var response2 = await GetConversation(tempId);
-        Console.WriteLine(response2);
+
         if (response2 != null)
         {
             throw new Exception($"Conversation already exists");
@@ -116,28 +116,29 @@ public class ConversationParticipantsStore : IConversationParticipantsStore
         return id;
     }
     
-    public async Task<GetUserConversations> GetConversations(string participant, PaginationFilter filter)
+    public async Task<GetUserConversations> GetConversations(string participant, PaginationFilterConversation filter)
     {
         List<ConversationResponse> userConversations = new List<ConversationResponse>();
         if (userConversations == null) throw new ArgumentNullException(nameof(userConversations));
         string newContinuationToken = "";
-         
+        Console.WriteLine("Last seen message time: " + filter.lastSeenConversationTime);
         var parameterizedQuery =
-            new QueryDefinition("SELECT * FROM c WHERE c.partitionKey LIKE @participant")
-                .WithParameter("@participant", '%'+participant+'%');
-        QueryRequestOptions options = new QueryRequestOptions() { MaxItemCount = filter.PageSize };
+            new QueryDefinition(
+                    "SELECT * FROM c WHERE c.partitionKey LIKE @participant AND c.timestamp > @lastSeenTime ORDER BY c.timestamp DESC")
+                .WithParameter("@participant", '%' + participant + '%')
+                .WithParameter("@lastSeenTime", filter.lastSeenConversationTime);
+        QueryRequestOptions options = new QueryRequestOptions() { MaxItemCount = filter.limit };
         
         using FeedIterator<ConversationEntity> feedIterator = CosmosContainer2.GetItemQueryIterator<ConversationEntity>(
             queryDefinition: parameterizedQuery,
             requestOptions: options,
-            continuationToken: string.IsNullOrEmpty(filter.ContinuationToken) ? null : HttpUtility.UrlDecode(filter.ContinuationToken).Replace("\\", ""));
+            continuationToken: string.IsNullOrEmpty(filter.ContinuationToken) ? null : filter.ContinuationToken);
 
         while (feedIterator.HasMoreResults)
         {
             FeedResponse<ConversationEntity> response = await feedIterator.ReadNextAsync();
             foreach (ConversationEntity conversation in response)
             {
-                Console.WriteLine(conversation.partitionKey);
                 QueryDefinition query = new QueryDefinition("SELECT * FROM c WHERE c.partitionKey = @id")
                     .WithParameter("@id", conversation.partitionKey);
 
@@ -163,9 +164,8 @@ public class ConversationParticipantsStore : IConversationParticipantsStore
             }
             
             newContinuationToken = response.ContinuationToken;
-            Console.WriteLine(response.Count);
-            Console.WriteLine(filter.PageSize);
-            if (response.Count >= filter.PageSize)
+            Console.WriteLine("Continuation token: " + newContinuationToken);
+            if (response.Count >= filter.limit)
             {
                 break;
             }
@@ -174,8 +174,6 @@ public class ConversationParticipantsStore : IConversationParticipantsStore
         return new GetUserConversations(userConversations, newContinuationToken);
     }
     
-    
-
     private ConversationParticipants ToConversation(string id, string participant)
     {
         return new ConversationParticipants(
@@ -185,12 +183,5 @@ public class ConversationParticipantsStore : IConversationParticipantsStore
         );
     }
     
-    // private static IEnumerable<ConversationResponse> ToConversations(IEnumerable<ConversationParticipants> conversations, long timestamp)
-    // {
-    //     return conversations.Select(conv => new ConversationResponse(
-    //         conv.partitionKey,
-    //         conv.Profile,
-    //         timestamp)
-    //     );
-    // }
+
 }

@@ -7,6 +7,7 @@ using ChatApp.Web.Service.Paginator;
 using ChatApp.Web.Service.Profiles;
 using ChatApp.Web.Storage.Conversations;
 using Microsoft.Azure.Cosmos.Linq;
+using Microsoft.VisualBasic.CompilerServices;
 
 namespace ChatApp.Web.Service.Conversations;
 
@@ -43,7 +44,7 @@ public class ConversationsService : IConversationsService
         {
             throw new ArgumentNullException($"Invalid input");
         }
-        Console.WriteLine("before get profile");
+
         try
         {
             await _profileService.GetProfile(conversation.Participants[0]);
@@ -60,7 +61,7 @@ public class ConversationsService : IConversationsService
         {
             throw new ArgumentException($"A User with username {conversation.Participants[1]} was not found");   
         }
-        Console.WriteLine("hello");
+
         string conversationId = conversation.Participants[0] + "_" + conversation.Participants[1];
         
         var datetime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
@@ -108,21 +109,32 @@ public class ConversationsService : IConversationsService
         return await _conversationStore.UpdateConversation(conversationId, time);
     }
 
-    public async Task<GetUserConversationsResponse?> GetUserConversations(string username, PaginationFilter filter, HttpRequest request)
+    public async Task<GetUserConversationsResponse?> GetUserConversations(string username, PaginationFilterConversation filter, HttpRequest request)
     {
         var userConv =  await _conversationParticipantsStore.GetConversations(username, filter);
-        
-        return new GetUserConversationsResponse(userConv.Conversations,
-            GetUserConversationsApiNextUri(request, username, filter.PageSize,
-                filter.LastSeenMessageTime, userConv.ContinuationToken));
 
+        if (String.IsNullOrEmpty(userConv.ContinuationToken))
+        {
+            return new GetUserConversationsResponse(userConv.Conversations, null);
+        }
+
+        return new GetUserConversationsResponse(userConv.Conversations,
+            GetUserConversationsApiNextUri(request, username, filter.limit,
+                filter.lastSeenConversationTime, userConv.ContinuationToken));
+        
     }
     
-    private static string GetUserConversationsApiNextUri(HttpRequest request, string username, int limit, long lastSeenMessageTime, string continuationToken)
+    private static string GetUserConversationsApiNextUri(HttpRequest request, string username, int limit, long lastSeenConversationTime, string continuationToken)
     {
         UriBuilder nextUri = new UriBuilder();
-        nextUri.Path = request.Path;
-        nextUri.Query = $"username={username}&limit={limit}&lastSeenMessageTime={lastSeenMessageTime}&continuationToken={HttpUtility.UrlEncode(continuationToken)}";
+        nextUri.Scheme = request.Scheme;
+        nextUri.Host = request.Host.Host;
+        if (request.Host.Port.HasValue)
+        {
+            nextUri.Port = request.Host.Port.Value;
+        }
+        nextUri.Path = request.Path.ToString();
+        nextUri.Query = $"username={username}&limit={limit}&lastSeenConversationTime={lastSeenConversationTime}&continuationToken={HttpUtility.UrlEncode(continuationToken)}";
         return nextUri.Uri.ToString();
     }
 }

@@ -4,5 +4,5 @@ namespace ChatApp.Web.Dtos;
 
 public record UserConversation(
     List<GetMessageResponse> Messages,
-    string NextUri
+    string? NextUri
 );

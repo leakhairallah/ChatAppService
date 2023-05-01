@@ -10,12 +10,12 @@ namespace ChatApp.Web.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 
-public class ConversationsController : ControllerBase
+public class conversationsController : ControllerBase
 {
     private readonly IConversationsService _conversationsService;
-    private readonly ILogger<ConversationsController> _logger;
+    private readonly ILogger<conversationsController> _logger;
     
-    public ConversationsController(IConversationsService conversationsService, ILogger<ConversationsController> logger)
+    public conversationsController(IConversationsService conversationsService, ILogger<conversationsController> logger)
     {
         _conversationsService = conversationsService;
         _logger = logger;
@@ -59,13 +59,14 @@ public class ConversationsController : ControllerBase
 
     }
 
-    [HttpGet("{username}")]
-    public async Task<ActionResult<string>> GetConversations(string username, [FromQuery] PaginationFilter filter){
+    [HttpGet]
+    public async Task<ActionResult<string>> GetConversations(string username, [FromQuery] PaginationFilterConversation filter){
         using (_logger.BeginScope("Fetching conversations of user {username}", username))
         {
             var request = HttpContext.Request;
             var userConversations = await _conversationsService.GetUserConversations(username, filter, request);
-
+            
+            Console.WriteLine("Controller filter: " + filter.lastSeenConversationTime);
             if (userConversations == null)
             {
                 return NotFound("There was error while trying to get conversations.");

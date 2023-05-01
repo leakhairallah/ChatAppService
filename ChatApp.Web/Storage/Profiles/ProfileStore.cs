@@ -18,8 +18,8 @@ public class ProfileStore : IProfileStore
     }
 
     // DRY
-    private Container CosmosContainer => _cosmosClient.GetDatabase("chatapi").GetContainer("profiles");
-    // private Container CosmosContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("profiles");
+    //private Container CosmosContainer => _cosmosClient.GetDatabase("chatapi").GetContainer("profiles");
+    private Container CosmosContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("profiles");
 
     public async Task UpsertProfile(Profile profile)
     {
@@ -82,11 +82,11 @@ public class ProfileStore : IProfileStore
         {
             if (e.StatusCode == HttpStatusCode.NotFound)
             {
-                throw new ArgumentException($"User does not exist.");
+                return null;
             }
-        }
 
-        return null;
+            throw;
+        }
     }
 
 

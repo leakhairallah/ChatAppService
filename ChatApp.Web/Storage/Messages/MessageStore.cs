@@ -1,4 +1,5 @@
 using System.Net;
+using System.Runtime.CompilerServices;
 using System.Web;
 using ChatApp.Web.Dtos;
 using ChatApp.Web.Service.Paginator;
@@ -18,12 +19,12 @@ public class MessageStore : IMessageStore
         _cosmosClient = cosmosClient;
     }
     
-    private Container MessageContainer => _cosmosClient.GetDatabase("chatapi").GetContainer("messages");
-    // private Container MessageContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("messages");
-    private Container ConversationsContainer => _cosmosClient.GetDatabase("chatapi").GetContainer("conversations");
-    // private Container ConversationsContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("conversations");
-    private Container ProfilesContainer => _cosmosClient.GetDatabase("chatapi").GetContainer("profiles");
-    // private Container ProfilesContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("profiles");
+    //private Container MessageContainer => _cosmosClient.GetDatabase("chatapi").GetContainer("messages");
+    private Container MessageContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("messages");
+    //private Container ConversationsContainer => _cosmosClient.GetDatabase("chatapi").GetContainer("conversations");
+    private Container ConversationsContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("conversations");
+    //private Container ProfilesContainer => _cosmosClient.GetDatabase("chatapi").GetContainer("profiles");
+    private Container ProfilesContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("profiles");
     
     public async Task<UploadMessageResponse?> PostMessageToConversation(string conversationId, SendMessageRequest msg, long datetime)
     {
@@ -78,8 +79,8 @@ public class MessageStore : IMessageStore
         }
 
         var messageEntity = ToEntity(conversationId, msg, datetime);
+
         await MessageContainer.CreateItemAsync(messageEntity);
-        
         return new UploadMessageResponse(messageEntity.Timestamp);
     }
 
@@ -89,15 +90,16 @@ public class MessageStore : IMessageStore
         {
             var parameterizedQuery =
                 new QueryDefinition(
-                        "SELECT * FROM c WHERE c.partitionKey = @conversationId AND c.Timestamp > @lastSeenMessage")
+                        "SELECT * FROM c WHERE c.partitionKey = @conversationId AND c.Timestamp > @lastSeenMessage ORDER BY c.Timestamp DESC")
                     .WithParameter("@conversationId", conversationId)
-                    .WithParameter("@lastSeenMessage", filter.LastSeenMessageTime);
-            QueryRequestOptions options = new QueryRequestOptions() { MaxItemCount = filter.PageSize };
+                    .WithParameter("@lastSeenMessage", filter.lastSeenMessageTime);
+            QueryRequestOptions options = new QueryRequestOptions() { MaxItemCount = filter.limit };
             
+            Console.WriteLine("store :" + filter.lastSeenMessageTime);
             using FeedIterator<MessageEntity> filteredFeed = MessageContainer.GetItemQueryIterator<MessageEntity>(
                 queryDefinition: parameterizedQuery,
                 requestOptions: options,
-                continuationToken: string.IsNullOrEmpty(filter.ContinuationToken) ? null : HttpUtility.UrlDecode(filter.ContinuationToken).Replace("\\", ""));
+                continuationToken: string.IsNullOrEmpty(filter.ContinuationToken) ? null : filter.ContinuationToken);
             
             List<GetMessageResponse> messageResponses = new List<GetMessageResponse>();
             string newContinuationToken = "";
@@ -107,7 +109,7 @@ public class MessageStore : IMessageStore
                 FeedResponse<MessageEntity> messageEntities = await filteredFeed.ReadNextAsync();
                 messageResponses.AddRange(ToMessages(messageEntities));
                 newContinuationToken = messageEntities.ContinuationToken;
-                if (messageResponses.Count >= filter.PageSize)
+                if (messageResponses.Count >= filter.limit)
                 {
                     break;
                 }
@@ -120,6 +122,31 @@ public class MessageStore : IMessageStore
             if (e.StatusCode == HttpStatusCode.NotFound)
             {
                 return null;
+            }
+
+            throw;
+        }
+    }
+
+    public async Task<MessageConflict> MessageConflictCheck(string conversationId, SendMessageRequest msg)
+    {
+        try
+        {
+            await MessageContainer.ReadItemAsync<MessageEntity>(
+                id: msg.Id,
+                partitionKey: new PartitionKey(msg.Id),
+                new ItemRequestOptions
+                {
+                    ConsistencyLevel = ConsistencyLevel.Session
+                }
+            );
+            return new MessageConflict(true);
+        }
+        catch (CosmosException e)
+        {
+            if (e.StatusCode == HttpStatusCode.NotFound)
+            {
+                return  new MessageConflict(false);
             }
 
             throw;
