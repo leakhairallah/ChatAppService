@@ -8,5 +8,5 @@ namespace ChatApp.Web.Storage.Conversations;
 public interface IConversationParticipantsStore
 {
     public Task<string> AddConversation(string participant1, string participant2, string id);
-    public Task<GetUserConversations> GetConversations(string participant, PaginationFilterConversation filter);
+    public Task<GetUserConversations?> GetConversations(string participant, PaginationFilterConversation filter);
 }

@@ -1,6 +1,7 @@
 using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using ChatApp.Web.Dtos;
+using ChatApp.Web.Exceptions;
 using ChatApp.Web.Service.Conversations;
 using ChatApp.Web.Service.Paginator;
 using Microsoft.Azure.Cosmos;
@@ -24,49 +25,39 @@ public class conversationsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<string>> StartConversation([FromBody] StartConversation firstConversation)
     {
-        try
+        using (_logger.BeginScope("Creating conversation between {participant1} and {participant2}...", firstConversation.Participants[0], firstConversation.Participants[1]))
         {
-            var response =
-                await _conversationsService.AddConversation(firstConversation);
-
-            if (response == null)
+            try
             {
-                return Conflict(
-                    $"Failed to create conversation with {firstConversation.Participants[0]} and {firstConversation.Participants[1]}");
+                _logger.LogInformation("Calling conversation service...");
+                var response =
+                    await _conversationsService.AddConversation(firstConversation);
+                
+                return Created("Successful!", response);
             }
-
-            // 200
-            return Created("", response);
-
-        }
-        catch (ArgumentNullException) //404
-        {
-            return BadRequest("Arguments cannot be null");
-        }
-        catch (ArgumentOutOfRangeException) //400
-        {
-            return BadRequest("There can only be two participants in a conversation");
-        }
-        catch (ArgumentException e)
-        {
-            Console.WriteLine(e);
-            return NotFound("User not found");
-        }
-        catch (Exception e) //409
-        {
-            return Conflict("Conversation Already Exists");
+            catch (InvalidConversationException e) 
+            {
+                return BadRequest(e.Message);
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound(e.Message);
+            }
+            catch (ConflictException e)
+            {
+                return Conflict(e.Message);
+            }
         }
 
     }
 
     [HttpGet]
     public async Task<ActionResult<string>> GetConversations(string username, [FromQuery] PaginationFilterConversation filter){
-        using (_logger.BeginScope("Fetching conversations of user {username}", username))
+        using (_logger.BeginScope("Calling conversation service..."))
         {
             var request = HttpContext.Request;
             var userConversations = await _conversationsService.GetUserConversations(username, filter, request);
             
-            Console.WriteLine("Controller filter: " + filter.lastSeenConversationTime);
             if (userConversations == null)
             {
                 return NotFound("There was error while trying to get conversations.");

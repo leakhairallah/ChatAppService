@@ -5,6 +5,7 @@ using ChatApp.Web.Service.Paginator;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Net;
+using ChatApp.Web.Exceptions;
 
 namespace ChatApp.Web.Controllers;
 
@@ -31,14 +32,18 @@ public class messagesController : ControllerBase
         string conversationId,
         [FromQuery] PaginationFilter filter)
     {
-        using (_logger.BeginScope("Fetching messages from conversation with {id}", conversationId))
+        using (_logger.BeginScope("Fetching messages from conversation with {id}...", conversationId))
         {
             var request = HttpContext.Request;
-            var messagesFromConversation = await _messageService.GetMessageFromConversation(conversationId, filter, request);
-     
+            
+            _logger.LogInformation("Calling message service...");
+            var messagesFromConversation =
+                await _messageService.GetMessageFromConversation(conversationId, filter, request);
+            
+            
             if (messagesFromConversation == null)
             {
-                return NotFound("There was an error while trying to get messages.");
+                return NotFound("Messages from conversation not found.");
             }
 
             return Ok(messagesFromConversation);
@@ -48,16 +53,26 @@ public class messagesController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<UploadMessageResponse>> PostMessageToConversation(string conversationId, [FromBody] SendMessageRequest msg)
     {
-        using (_logger.BeginScope("Queuing message"))
+        using (_logger.BeginScope("Queuing message..."))
         {
             try
             {
+                _logger.LogInformation("Calling message service...");
                 await _messageService.EnqueueSendMessage(conversationId, msg);
-                return Ok("Successful!");
+                return CreatedAtAction(nameof(PostMessageToConversation), new { senderUsername = msg.SenderUsername },
+                    msg);
             }
-            catch (Exception e)
+            catch (ConflictException e)
             {
                 return Conflict(e.Message);
+            }
+            catch (BadHttpRequestException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (NotFoundException e)
+            {
+                return NotFound(e.Message);
             }
         }
     }

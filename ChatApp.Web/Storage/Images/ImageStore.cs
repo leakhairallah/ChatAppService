@@ -1,86 +1,67 @@
 ﻿using System.Net;
 using Azure;
-using Microsoft.Azure.Cosmos;
 using Azure.Storage.Blobs;
 using ChatApp.Web.Dtos;
-using ChatApp.Web.Storage.Entities;
+using ChatApp.Web.Exceptions;
 
 namespace ChatApp.Web.Storage.Images;
 
 public class ImageStore : IImageStore
 {
-    
-    private readonly CosmosClient _cosmosClient;
     private readonly BlobContainerClient _blobContainerClient;
-    public ImageStore(CosmosClient cosmosClient, BlobContainerClient blobContainerClient)
+    private readonly ILogger<ImageStore> _logger;
+    public ImageStore(BlobContainerClient blobContainerClient, ILogger<ImageStore> logger)
     {
-        _cosmosClient = cosmosClient;
         _blobContainerClient = blobContainerClient;
+        _logger = logger;
     }
-    
-    private Container CosmosContainer => _cosmosClient.GetDatabase("ChatAppDatabase").GetContainer("profiles");
 
     public async Task<UploadImageResponse?> UpsertProfilePicture(UploadImageRequest profilePicture)
     {
-        if (profilePicture == null || profilePicture.File.Length == 0)
+        using (_logger.BeginScope("Checking for exceptions..."))
         {
-            throw new ArgumentException($"Invalid profile picture {profilePicture}", nameof(profilePicture));
-        }
+            if (profilePicture == null || profilePicture.File.Length == 0)
+            {
+                throw new InvalidPictureException($"Invalid profile picture {profilePicture}", HttpStatusCode.BadRequest);
+            }
 
-        try
-        {
-            using var stream = new MemoryStream();
-            await profilePicture.File.CopyToAsync(stream);
-            stream.Position = 0;
+            try
+            {
+                _logger.LogInformation("Uploading image...");
+                using var stream = new MemoryStream();
+                await profilePicture.File.CopyToAsync(stream);
+                stream.Position = 0;
 
-            string imageId = Guid.NewGuid().ToString();
+                string imageId = Guid.NewGuid().ToString();
 
 
-            await _blobContainerClient.UploadBlobAsync(imageId, stream);
-            return new UploadImageResponse(imageId);
-        }
-        catch (Exception e)
-        {
-            throw new Exception( e.Message);
+                await _blobContainerClient.UploadBlobAsync(imageId, stream);
+                return new UploadImageResponse(imageId);
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
         }
     }
-    public async Task<byte[]?> GetProfilePicture(string username)
+    public async Task<byte[]?> GetProfilePicture(string id)
     {
-        try
+        using (_logger.BeginScope("Getting profile picture..."))
         {
-            var entity = await CosmosContainer.ReadItemAsync<ProfileEntity>(
-                id: username,
-                partitionKey: new PartitionKey(username),
-                new ItemRequestOptions
-                {
-                    ConsistencyLevel = ConsistencyLevel.Session
-                }
-            );
-            
-            var response = await _blobContainerClient.GetBlobClient(ToProfile(entity).ProfilePictureId).DownloadAsync();
-
-            await using var memoryStream = new MemoryStream();
-            await response.Value.Content.CopyToAsync(memoryStream);
-            var bytes = memoryStream.ToArray();
-
-            return bytes;
-        }
-        catch (CosmosException e)
-        {
-            if (e.StatusCode == HttpStatusCode.NotFound)
+            try
             {
-                throw new ArgumentException("Username not found");
-            }
+                var response = await _blobContainerClient.GetBlobClient(id).DownloadAsync();
 
-            throw;
-        }
-        catch (RequestFailedException e)
-        {
-            if (e.Status == 404)
-            {
-                throw new Exception("Could not download image.");
+                await using var memoryStream = new MemoryStream();
+                await response.Value.Content.CopyToAsync(memoryStream);
+                var bytes = memoryStream.ToArray();
+
+                return bytes;
             }
-            throw;
+            catch (Exception)
+            {
+                throw new Exception($"Failed to get profile picture.");
+            }
         }
     }
 
@@ -102,15 +83,4 @@ public class ImageStore : IImageStore
         }
     }
     
-    private static Profile ToProfile(ProfileEntity entity)
-    {
-        return new Profile(
-            Username: entity.id,
-            entity.FirstName,
-            entity.LastName,
-            entity.ProfilePictureId
-        );
-    }
-
-
 }

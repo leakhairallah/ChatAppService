@@ -1,11 +1,11 @@
+using System.Net;
 using System.Web;
-using Azure;
 using ChatApp.Web.Dtos;
+using ChatApp.Web.Exceptions;
 using ChatApp.Web.Storage.Messages;
 using ChatApp.Web.Service.ServiceBus;
 using ChatApp.Web.Service.Paginator;
 using ChatApp.Web.Storage.Conversations;
-using Microsoft.Extensions.Logging.Abstractions;
 
 namespace ChatApp.Web.Service.Messages;
 
@@ -14,58 +14,75 @@ public class MessageService : IMessageService
     private readonly IMessageStore _messageStore;
     private readonly IConversationStore _conversationStore;
     private readonly ISendMessageServiceBusPublisher _sendMessageServiceBusPublisher;
+    private readonly ILogger<MessageService> _logger;
     
     public MessageService(
         IMessageStore messageStore,
         IConversationStore conversationStore,
-        ISendMessageServiceBusPublisher sendMessageServiceBusPublisher)
+        ISendMessageServiceBusPublisher sendMessageServiceBusPublisher,
+        ILogger<MessageService> logger)
     {
         _messageStore = messageStore;
         _sendMessageServiceBusPublisher = sendMessageServiceBusPublisher;
         _conversationStore = conversationStore;
+        _logger = logger;
     }
 
     public async Task EnqueueSendMessage(string conversationId, SendMessageRequest msg)
     {
-        var response = await _messageStore.MessageConflictCheck(conversationId, msg);
-
-        if (response.MessageExists)
+        using (_logger.BeginScope("Checking for conflict..."))
         {
-            throw new Exception("Message already exists.");
+            var response = await _messageStore.MessageConflictCheck(conversationId, msg);
+
+            if (response.MessageExists)
+            {
+                throw new ConflictException("already exists.", "Message", HttpStatusCode.Conflict);
+            }
+            
+            _logger.LogInformation("Sending message to publisher...");
+            await _sendMessageServiceBusPublisher.Send(conversationId, msg);
         }
-        await _sendMessageServiceBusPublisher.Send(conversationId, msg);
         
     }
 
     public async Task<UploadMessageResponse?> PostMessageToConversation(string conversationId, SendMessageRequest msg, long datetime)
     {
-        var response = await _messageStore.PostMessageToConversation(conversationId, msg, datetime);
-
-        if (response != null)
+        using (_logger.BeginScope("Adding message to conversation with {id}...", conversationId))
         {
-            await _conversationStore.UpdateConversation(conversationId, response.timestamp);
-        }
+            var response = await _messageStore.PostMessageToConversation(conversationId, msg, datetime);
 
-        return response;
+            if (response != null)
+            {
+                _logger.LogInformation("Updating last modified time of conversation: {time}...", response.timestamp);
+                await _conversationStore.UpdateConversation(conversationId, response.timestamp);
+                
+                return response;
+            }
+
+            return null;
+        }
     }
 
     public async Task<UserConversation?> GetMessageFromConversation(string conversationId, PaginationFilter filter, HttpRequest request)
     {
-        
-        var conversation = await _messageStore.GetMessageFromConversation(conversationId, filter);
-        
-        if (conversation != null)
+        using (_logger.BeginScope("Getting messages from conversation with {id}...", conversationId))
         {
-            if (String.IsNullOrEmpty(conversation.continuationToken))
-            {
-                return new UserConversation(conversation.Messages, null);
-            }
-            return new UserConversation(conversation.Messages,
-                GetConversationMessagesApiNextUri(request, conversationId, filter.limit,
-                    filter.lastSeenMessageTime, conversation.continuationToken));
-        }
+            var conversation = await _messageStore.GetMessageFromConversation(conversationId, filter);
         
-        return null;
+            if (conversation != null)
+            {
+                if (String.IsNullOrEmpty(conversation.continuationToken))
+                {
+                    return new UserConversation(conversation.Messages, null);
+                }
+                _logger.LogInformation("Building next URI...");
+                return new UserConversation(conversation.Messages,
+                    GetConversationMessagesApiNextUri(request, conversationId, filter.limit,
+                        filter.lastSeenMessageTime, conversation.continuationToken));
+            }
+        
+            return null;
+        }
 
     }
     

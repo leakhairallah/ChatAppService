@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Drawing;
+using Microsoft.AspNetCore.Mvc;
 using ChatApp.Web.Dtos;
+using ChatApp.Web.Exceptions;
 using ChatApp.Web.Service.Images;
 
 namespace ChatApp.Web.Controllers;
@@ -9,54 +11,55 @@ namespace ChatApp.Web.Controllers;
 public class ImageController : ControllerBase
 {
     private readonly IImageService _imageService;
+    private readonly ILogger<ImageController> _logger;
 
-    public ImageController(IImageService imageService)
+    public ImageController(IImageService imageService, ILogger<ImageController> logger)
     {
         _imageService = imageService;
+        _logger = logger;
     }
     
     [HttpPost]
     public async Task<ActionResult<UploadImageResponse>> UploadImage([FromForm] UploadImageRequest request)
     {
-        try
+        using (_logger.BeginScope("Calling image service..."))
         {
-            var response = await _imageService.UpsertProfilePicture(request);
-            if (response == null)
+            try
             {
-                return BadRequest("Could not upload profile picture.");
-            }
+                var response = await _imageService.UpsertProfilePicture(request);
+                if (response == null)
+                {
+                    return StatusCode(502, "Could not upload profile picture.");
+                }
             
-            var uploadImageResponse = new UploadImageResponse(response.Id);
-            Console.WriteLine("In image controller");
-            Console.WriteLine(uploadImageResponse.Id);
-            return Ok(uploadImageResponse);
-        }
-        catch (ArgumentException e)
-        {
-            return BadRequest("Bad input.");
+                var uploadImageResponse = new UploadImageResponse(response.Id);
+                return Ok(uploadImageResponse);
+            }
+            catch (InvalidPictureException e)
+            {
+                return BadRequest(e.Message);
+            }
         }
     }
 
     
     [HttpGet("{username}")]
-    public async Task<IActionResult> DownloadImage(string username)
+    public async Task<IActionResult> DownloadImage(string id)
     {
-        try
+        using (_logger.BeginScope("Calling image service..."))
         {
-            var image = await _imageService.GetProfilePicture(username);
-            FileContentResult file = new FileContentResult(image, "image/jpeg");
+            try
+            {
+                var image = await _imageService.GetProfilePicture(id);
+                FileContentResult file = new FileContentResult(image, "image/jpeg");
 
-            return Ok(file);
+                return Ok(file);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(502, "Could not download image.");
+            }
         }
-        catch (ArgumentException e)
-        {
-            return BadRequest("Invalid username.");
-        }
-        catch (Exception e)
-        {
-            return NotFound(e.Message);
-        }
-        
     }
 }
 

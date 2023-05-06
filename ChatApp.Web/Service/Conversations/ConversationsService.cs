@@ -1,13 +1,12 @@
-using System.Data;
 using System.Net;
 using System.Web;
 using ChatApp.Web.Dtos;
+using ChatApp.Web.Exceptions;
 using ChatApp.Web.Service.Messages;
 using ChatApp.Web.Service.Paginator;
 using ChatApp.Web.Service.Profiles;
 using ChatApp.Web.Storage.Conversations;
 using Microsoft.Azure.Cosmos.Linq;
-using Microsoft.VisualBasic.CompilerServices;
 
 namespace ChatApp.Web.Service.Conversations;
 
@@ -17,110 +16,126 @@ public class ConversationsService : IConversationsService
     private readonly IConversationParticipantsStore _conversationParticipantsStore;
     private readonly IProfileService _profileService;
     private readonly IMessageService _messageService;
+    private readonly ILogger<ConversationsService> _logger;
 
     
     public ConversationsService(
         IConversationStore conversationStore, 
         IConversationParticipantsStore conversationParticipantsStore, 
         IProfileService profileService, 
-        IMessageService messageService)
+        IMessageService messageService, 
+        ILogger<ConversationsService> logger)
     {
         _conversationStore = conversationStore;
         _conversationParticipantsStore = conversationParticipantsStore;
         _profileService = profileService;
         _messageService = messageService;
+        _logger = logger;
     }
     
     public async Task<StartConversationResponse> AddConversation(StartConversation conversation)
     {
-        if (conversation.Participants.Length != 2)
+        using (_logger.BeginScope("Checking for exceptions..."))
         {
-            throw new ArgumentOutOfRangeException("Invalid input, need 2 usernames");
-        }
-        if (string.IsNullOrWhiteSpace(conversation.Participants[0]) ||
-            string.IsNullOrWhiteSpace(conversation.Participants[1]) ||
-            string.IsNullOrWhiteSpace(conversation.FirstMessage.SenderUsername) ||
-            string.IsNullOrWhiteSpace(conversation.FirstMessage.Text))
-        {
-            throw new ArgumentNullException($"Invalid input");
-        }
-
-        try
-        {
-            await _profileService.GetProfile(conversation.Participants[0]);
-        }
-        catch (Exception)
-        {
-            throw new ArgumentException($"A User with username {conversation.Participants[0]} was not found");   
-        }
-        try
-        {
-            await _profileService.GetProfile(conversation.Participants[1]);
-        }
-        catch (Exception)
-        {
-            throw new ArgumentException($"A User with username {conversation.Participants[1]} was not found");   
-        }
-
-        string conversationId = conversation.Participants[0] + "_" + conversation.Participants[1];
-        
-        var datetime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        
-        var createResponse = await _conversationStore.AddConversation(conversationId, datetime);
-        
-        if (createResponse == conversationId)
-        {
-            
-            var messageResponse = await _messageService.PostMessageToConversation(conversationId, new SendMessageRequest(conversationId, conversation.FirstMessage.SenderUsername, conversation.FirstMessage.Text), datetime);
-            
-            var response = await _conversationParticipantsStore.AddConversation(conversation.Participants[0], conversation.Participants[1], conversationId);
-            if (response == conversationId)
+            if (conversation.Participants.Length != 2)
             {
-                return new StartConversationResponse(conversationId, datetime);
+                throw new InvalidConversationException("There can only be 2 participants in a conversation.", HttpStatusCode.BadRequest);
             }
-            else
+            if (string.IsNullOrWhiteSpace(conversation.Participants[0]) ||
+                string.IsNullOrWhiteSpace(conversation.Participants[1]) ||
+                string.IsNullOrWhiteSpace(conversation.FirstMessage.SenderUsername) ||
+                string.IsNullOrWhiteSpace(conversation.FirstMessage.Text))
             {
-                throw new Exception($"Error creating conversation");
+                throw new InvalidConversationException("Invalid input.", HttpStatusCode.BadRequest);
+            }
+
+            try
+            {
+                await _profileService.GetProfile(conversation.Participants[0]);
+            }
+            catch (NotFoundException e)
+            {
+                throw new NotFoundException($"with username {conversation.Participants[0]}", "User", HttpStatusCode.NotFound);
+            }
+            try
+            {
+                await _profileService.GetProfile(conversation.Participants[1]);
+            }
+            catch (NotFoundException e)
+            {
+                throw new NotFoundException($"with username {conversation.Participants[1]}", "User", HttpStatusCode.NotFound);
+            }
+
+            string conversationId = conversation.Participants[0] + "_" + conversation.Participants[1];
+        
+            var datetime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            
+            _logger.LogInformation("Adding conversation to Conversation Store");
+        
+            var createResponse = await _conversationStore.AddConversation(conversationId, datetime);
+        
+            if (createResponse == conversationId)
+            {
+                _logger.LogInformation("Posting first message to conversation...");
+                await _messageService.PostMessageToConversation(conversationId, new SendMessageRequest(conversationId, conversation.FirstMessage.SenderUsername, conversation.FirstMessage.Text), datetime);
+            
+                _logger.LogInformation("Adding participants to Conversation Participants Store...");
+                var response = await _conversationParticipantsStore.AddConversation(conversation.Participants[0], conversation.Participants[1], conversationId);
+                if (response == conversationId)
+                {
+                    return new StartConversationResponse(conversationId, datetime);
+                }
+            
+                throw new Exception($"Error creating conversation.");
                 
             }
+            throw new Exception($"Error creating conversation.");
         }
-        else
-        {
-            throw new Exception($"Error creating conversation");
-        }
-        
     }
 
     public async Task<HttpStatusCode> UpdateConversation(string conversationId, long time)
     {
-        if (string.IsNullOrWhiteSpace(conversationId) || time.IsNull())
+        using (_logger.BeginScope("Checking for exceptions..."))
         {
-            throw new ArgumentException($"Invalid input {conversationId}", nameof(conversationId));
-        }
+            if (string.IsNullOrWhiteSpace(conversationId) || time.IsNull())
+            {
+                throw new InvalidConversationException($"Invalid input {conversationId}", HttpStatusCode.BadRequest);
+            }
 
-        if (time > DateTime.UtcNow.Millisecond)
-        {
-            throw new ArgumentException($"Time Exceeded: {time}");
+            if (time > DateTime.UtcNow.Millisecond)
+            {
+                throw new ArgumentException($"Time Exceeded: {time}");
+            }
+            
+            _logger.LogInformation("Calling Conversation Store...");
+            await _conversationStore.GetConversation(conversationId);
+            
+            _logger.LogInformation("Updating last modified time of conversation: {time}...", time);
+            return await _conversationStore.UpdateConversation(conversationId, time);
         }
-        
-        var response = _conversationStore.GetConversation(conversationId);
-        
-        
-        return await _conversationStore.UpdateConversation(conversationId, time);
     }
 
     public async Task<GetUserConversationsResponse?> GetUserConversations(string username, PaginationFilterConversation filter, HttpRequest request)
     {
-        var userConv =  await _conversationParticipantsStore.GetConversations(username, filter);
-
-        if (String.IsNullOrEmpty(userConv.ContinuationToken))
+        using (_logger.BeginScope("Calling Conversation Participants Store..."))
         {
-            return new GetUserConversationsResponse(userConv.Conversations, null);
-        }
+            var userConv =  await _conversationParticipantsStore.GetConversations(username, filter);
 
-        return new GetUserConversationsResponse(userConv.Conversations,
-            GetUserConversationsApiNextUri(request, username, filter.limit,
-                filter.lastSeenConversationTime, userConv.ContinuationToken));
+            if (userConv == null)
+            {
+                return null;
+            }
+
+            if (String.IsNullOrEmpty(userConv.ContinuationToken))
+            {
+                return new GetUserConversationsResponse(userConv.Conversations, null);
+            }
+            
+            _logger.LogInformation("Building next URI...");
+            return new GetUserConversationsResponse(userConv.Conversations,
+                GetUserConversationsApiNextUri(request, username, filter.limit,
+                    filter.lastSeenConversationTime, userConv.ContinuationToken));
+        }
         
     }
     
