@@ -54,11 +54,11 @@ public class ConversationsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<string>> GetConversations(GetConversationsRequest filter){
+    public async Task<ActionResult<string>> GetConversations(string username, [FromBody] PaginationFilterConversation filter){
         using (_logger.BeginScope("Calling conversation service..."))
         {
             var request = HttpContext.Request;
-            var userConversations = await _conversationsService.GetUserConversations(filter.username, filter.filter, request);
+            var userConversations = await _conversationsService.GetUserConversations(username, filter, request);
             
             if (userConversations == null)
             {
