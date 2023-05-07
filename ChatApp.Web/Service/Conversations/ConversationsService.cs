@@ -35,6 +35,7 @@ public class ConversationsService : IConversationsService
     
     public async Task<StartConversationResponse> AddConversation(StartConversation conversation)
     {
+        Console.WriteLine("Im in the service layer");
         using (_logger.BeginScope("Checking for exceptions..."))
         {
             if (conversation.Participants.Length != 2)
@@ -91,6 +92,8 @@ public class ConversationsService : IConversationsService
             }
             throw new Exception($"Error creating conversation.");
         }
+
+        
     }
 
     public async Task<HttpStatusCode> UpdateConversation(string conversationId, long time)

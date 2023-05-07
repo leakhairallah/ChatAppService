@@ -11,12 +11,12 @@ namespace ChatApp.Web.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 
-public class conversationsController : ControllerBase
+public class ConversationsController : ControllerBase
 {
     private readonly IConversationsService _conversationsService;
-    private readonly ILogger<conversationsController> _logger;
+    private readonly ILogger<ConversationsController> _logger;
     
-    public conversationsController(IConversationsService conversationsService, ILogger<conversationsController> logger)
+    public ConversationsController(IConversationsService conversationsService, ILogger<ConversationsController> logger)
     {
         _conversationsService = conversationsService;
         _logger = logger;
@@ -47,16 +47,18 @@ public class conversationsController : ControllerBase
             {
                 return Conflict(e.Message);
             }
-        }
+            return Ok(
+                $"Failed to create conversation with {firstConversation.Participants[0]} and {firstConversation.Participants[1]}");
+            }
 
     }
 
     [HttpGet]
-    public async Task<ActionResult<string>> GetConversations(string username, [FromQuery] PaginationFilterConversation filter){
+    public async Task<ActionResult<string>> GetConversations(GetConversationsRequest filter){
         using (_logger.BeginScope("Calling conversation service..."))
         {
             var request = HttpContext.Request;
-            var userConversations = await _conversationsService.GetUserConversations(username, filter, request);
+            var userConversations = await _conversationsService.GetUserConversations(filter.username, filter.filter, request);
             
             if (userConversations == null)
             {
