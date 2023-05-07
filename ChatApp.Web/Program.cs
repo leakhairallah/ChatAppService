@@ -23,6 +23,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddApplicationInsightsTelemetry();
+
 // Add Configuration
 builder.Services.Configure<CosmosSettings>(builder.Configuration.GetSection("Cosmos"));
 builder.Services.Configure<BlobSettings>(builder.Configuration.GetSection("Blob"));
