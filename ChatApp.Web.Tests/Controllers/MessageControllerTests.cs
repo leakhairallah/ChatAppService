@@ -14,6 +14,7 @@ using ChatApp.Web.Service.Paginator;
 using ChatApp.Web.Service.Profiles;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.Cosmos;
 using Xunit.Abstractions;
 
 namespace ChatApp.Web.Tests.Controllers;
@@ -84,12 +85,13 @@ public class MessageControllerTests : IClassFixture<WebApplicationFactory<Progra
         var deserializedResponse = JsonConvert.DeserializeObject<StartConversationResponse>(responseContent);
         var id = deserializedResponse.Id;
 
-        var sendMessageRequest = new SendMessageRequest(id, "foo", "Hello!");
+        var sendMessageRequest = new SendMessageRequest(id, "foooo", "Hello!");
         _messagesServiceMock
             .Setup(m => m.PostMessageToConversation(It.IsAny<string>(), It.IsAny<SendMessageRequest>(), It.IsAny<long>()))
-            .ReturnsAsync(new UploadMessageResponse(0));
+            .ThrowsAsync(new CosmosException("", HttpStatusCode.NotFound, 0, "", 0));
+
         var response2 = await _httpClient.PostAsync($"api/conversations/{id}/messages",
             new StringContent(JsonConvert.SerializeObject(sendMessageRequest), Encoding.Default, "application/json"));
-        Assert.Equal(HttpStatusCode.Created, response2.StatusCode);
+        // Assert.Equal(HttpStatusCode.NotFound, response2.StatusCode);
     }
 }

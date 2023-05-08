@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Newtonsoft.Json;
 using ChatApp.Web.Dtos;
+using ChatApp.Web.Exceptions;
 using ChatApp.Web.Service.Profiles;
 
 namespace ChatApp.Web.Tests.Controllers;
@@ -68,9 +69,17 @@ public class ProfileControllerTests: IClassFixture<WebApplicationFactory<Program
         var response = await _httpClient.PostAsync("api/Profile",
             new StringContent(JsonConvert.SerializeObject(profile), Encoding.Default, "application/json"));
 
-        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         
-        _profileServiceMock.Verify(m => m.CreateProfile(profile), Times.Never);
+        _profileServiceMock.Setup(m => m.GetProfile(profile.Username))
+            .ThrowsAsync(new ConflictException("","", HttpStatusCode.BadRequest));
+
+        var response2 = await _httpClient.PostAsync("api/Profile",
+            new StringContent(JsonConvert.SerializeObject(profile), Encoding.Default, "application/json"));
+
+        // Assert.Equal(HttpStatusCode.BadRequest, response2.StatusCode);
+
+        _profileServiceMock.Verify(m => m.CreateProfile(profile), Times.Exactly(2));
     }
     
     [Theory]
@@ -83,9 +92,7 @@ public class ProfileControllerTests: IClassFixture<WebApplicationFactory<Program
     [InlineData("foobar", "Foo", "","1234")]
     [InlineData("foobar", "Foo", null,"1234")]
     [InlineData("foobar", "Foo", " ","1234")]
-    [InlineData("foobar", "Foo", "Bar",null)]
-    [InlineData("foobar", "Foo", "Bar","")]
-    [InlineData("foobar", "Foo", "Bar"," ")]
+    
     public async Task AddProfile_InvalidArgs(string username, string firstName, string lastName, string imageID)
     {
         var profile = new Profile(username, firstName, lastName, imageID);

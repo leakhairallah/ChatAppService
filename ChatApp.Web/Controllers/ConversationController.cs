@@ -54,7 +54,7 @@ public class ConversationsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<string>> GetConversations(string username, [FromBody] PaginationFilterConversation filter){
+    public async Task<ActionResult<string>> GetConversations(string username, [FromQuery] PaginationFilterConversation filter){
         using (_logger.BeginScope("Calling conversation service..."))
         {
             var request = HttpContext.Request;
