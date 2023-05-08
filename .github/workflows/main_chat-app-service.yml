@@ -4,7 +4,7 @@
 name: Build and deploy ASP.Net Core app to Azure Web App - chat-app-service
 
 env:    # set this to the name of your Azure Web App
-  AZURE_WEBAPP_PACKAGE_PATH: 'ChatApp.Web'      # set this to the path to your web app project, defaults to the repository root
+  AZURE_WEBAPP_PACKAGE_PATH: './publish'      # set this to the path to your web app project, defaults to the repository root
   DOTNET_VERSION: '6.0.x'
   Cosmos: ${{ secrets.COSMOS }}
   Blob: ${{ secrets.BLOB }}
@@ -34,7 +34,7 @@ jobs:
         run: dotnet build --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish ChatApp.Web/ChatApp.Web.csproj -c Release --no-build -o ${{env.AZURE_WEBAPP_PACKAGE_PATH}}/myapp
+        run: dotnet publish ChatApp.Web/ChatApp.Web.csproj -c Release --no-build -o ${{env.AZURE_WEBAPP_PACKAGE_PATH}}
 
   deploy:
     runs-on: ubuntu-latest
