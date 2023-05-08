@@ -34,7 +34,7 @@ jobs:
         run: dotnet build --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish ChatApp.Web/ChatApp.Web.csproj -c Release --no-build -o ${{env.AZURE_WEBAPP_PACKAGE_PATH}}
+        run: dotnet publish ChatApp.Web/ChatApp.Web.csproj -c Release --no-build -o '${{env.AZURE_WEBAPP_PACKAGE_PATH}}'
 
   deploy:
     runs-on: ubuntu-latest
