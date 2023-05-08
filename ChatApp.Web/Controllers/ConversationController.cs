@@ -50,13 +50,13 @@ public class ConversationsController : ControllerBase
     }
 
     [HttpGet]
-        public async Task<ActionResult<string>> GetConversations(string username, [FromQuery] PaginationFilterConversation filter)
+    public async Task<ActionResult<string>> GetConversations(string username, [FromQuery] PaginationFilterConversation filter)
         {
 
             _logger.LogInformation("Calling conversation service...");
             var request = HttpContext.Request;
             var userConversations = await _conversationsService.GetUserConversations(username, filter, request);
-        
+            
             if (userConversations == null)
             {
                 return NotFound("There was error while trying to get conversations.");
