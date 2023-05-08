@@ -1,6 +1,7 @@
 using Azure.Storage.Blobs;
 using ChatApp.Web.Dtos;
-using ChatApp.Web.Storage;
+using ChatApp.Web.Storage.Images;
+using ChatApp.Web.Storage.Profiles;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;

@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using ChatApp.Web.Dtos;
 using ChatApp.Web.Storage;
 using ChatApp.Web.Storage.Entities;
+using ChatApp.Web.Storage.Profiles;
 using Xunit.Abstractions;
 
 namespace ChatApp.Web.IntegrationTest;

@@ -1,7 +1,7 @@
 ﻿using ChatApp.Web.Dtos;
-using ChatApp.Web.Storage;
+using ChatApp.Web.Storage.Images;
 
-namespace ChatApp.Web.Service;
+namespace ChatApp.Web.Service.Images;
 
 public class ImageService : IImageService
 {
@@ -10,12 +10,12 @@ public class ImageService : IImageService
     {
         _imageStore = imageStore;
     }
-    public Task<UploadImageResponse?> UpsertProfilePicture(UploadImageRequest picture)
+    public Task<UploadImageResponse> UpsertProfilePicture(UploadImageRequest picture)
     {
         return _imageStore.UpsertProfilePicture(picture);
     }
 
-    public Task<byte[]?> GetProfilePicture(string id)
+    public Task<byte[]> GetProfilePicture(string id)
     {
         return _imageStore.GetProfilePicture(id);
     }

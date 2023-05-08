@@ -1,53 +1,61 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Drawing;
+using Microsoft.AspNetCore.Mvc;
 using ChatApp.Web.Dtos;
-using ChatApp.Web.Service;
+using ChatApp.Web.Exceptions;
+using ChatApp.Web.Service.Images;
 
 namespace ChatApp.Web.Controllers;
 
 [ApiController]
-[Route("[controller]")]
-public class ImageController : ControllerBase
+[Route("api/[controller]")]
+public class ImagesController : ControllerBase
 {
     private readonly IImageService _imageService;
+    private readonly ILogger<ImagesController> _logger;
 
-    public ImageController(IImageService imageService)
+    public ImagesController(IImageService imageService, ILogger<ImagesController> logger)
     {
         _imageService = imageService;
+        _logger = logger;
     }
     
     [HttpPost]
     public async Task<ActionResult<UploadImageResponse>> UploadImage([FromForm] UploadImageRequest request)
     {
-        var response = new UploadImageResponse(null);
+        _logger.LogInformation("Calling image service for uploading image...");
         try
         {
-            response = await _imageService.UpsertProfilePicture(request);
+            var response = await _imageService.UpsertProfilePicture(request);
+            return Ok(response);
         }
-        catch (ArgumentException e)
+        catch (InvalidPictureException e)
         {
-            return UnprocessableEntity("Bad input");
+            return BadRequest(e.Message);
         }
-        if (response == null)
+        catch (Exception e)
         {
-            return BadRequest("Could not upload profile picture");
+            return StatusCode(502, e.Message);
         }
-        
-        var uploadImageResponse = new UploadImageResponse(response.Id);
-        return Ok(uploadImageResponse);
     }
 
     
-    [HttpGet("{username}")]
-    public async Task<IActionResult> DownloadImage(string username)
+    [HttpGet("{id}")]
+    public async Task<IActionResult> DownloadImage(string id)
     {
-        var image = await _imageService.GetProfilePicture(username);
-        if (image == null)
+        _logger.LogInformation("Calling image service for downloading image...");
+        try
         {
-            return NotFound("Image not found");
+            var image = await _imageService.GetProfilePicture(id);
+            return Ok(image);
         }
-        FileContentResult file = new FileContentResult(image, "image/jpeg");
-        
-        return Ok(file);
+        catch (NotFoundException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (Exception)
+        {
+            return StatusCode(502, "Could not download image.");
+        }
     }
 }
 

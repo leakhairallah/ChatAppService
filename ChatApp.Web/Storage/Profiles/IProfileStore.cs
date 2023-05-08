@@ -1,6 +1,6 @@
 using ChatApp.Web.Dtos;
 
-namespace ChatApp.Web.Storage;
+namespace ChatApp.Web.Storage.Profiles;
 
 public interface IProfileStore
 {

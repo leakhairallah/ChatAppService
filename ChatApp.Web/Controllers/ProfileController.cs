@@ -1,45 +1,66 @@
 using System.ComponentModel;
 using Microsoft.AspNetCore.Mvc;
 using ChatApp.Web.Dtos;
-using ChatApp.Web.Service;
+using ChatApp.Web.Exceptions;
+using ChatApp.Web.Service.Profiles;
 
 namespace ChatApp.Web.Controllers;
 
 
 [ApiController]
-[Route("[controller]")]
+[Route("api/[controller]")]
 public class ProfileController : ControllerBase
 {
     private readonly IProfileService _profileService;
+    private readonly ILogger<ProfileController> _logger;
 
-    public ProfileController(IProfileService profileService)
+    public ProfileController(IProfileService profileService, ILogger<ProfileController> logger)
     {
         _profileService = profileService;
+        _logger = logger;
     }
 
     [HttpGet("{username}")]
     public async Task<ActionResult<Profile>> GetProfile(string username)
     {
-        var profile = await _profileService.GetProfile(username);
-        if (profile == null)
+        _logger.LogInformation("Calling profile service...");
+        try
         {
-            return NotFound($"A User with username {username} was not found");
-        }
+            var profile = await _profileService.GetProfile(username);
+            if (profile == null)
+            {
+                return NotFound($"A User with username {username} was not found");
+            }
 
-        return Ok(profile);
+            return Ok(profile);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(502, e.Message);
+        }
     }
 
     [HttpPost]
     public async Task<ActionResult<Profile>> AddProfile(Profile profile)
     {
-        var existingProfile = await _profileService.GetProfile(profile.Username);
-        if (existingProfile != null)
+        _logger.LogInformation("Calling profile service...");
+        try
         {
-            return Conflict($"A user with username {profile.Username} already exists");
+            await _profileService.CreateProfile(profile);
+            return CreatedAtAction(nameof(GetProfile), new { username = profile.Username },
+                profile);
         }
-
-        await _profileService.CreateProfile(profile);
-        return CreatedAtAction(nameof(GetProfile), new { username = profile.Username },
-            profile);
+        catch (ConflictException e)
+        {
+            return Conflict(e.Message);
+        }
+        catch (InvalidProfileException e)
+        {
+            return BadRequest(e.Message);
+        }
+        catch (Exception e){
+            
+            return StatusCode(502, e.Message);
+        }
     }
 }

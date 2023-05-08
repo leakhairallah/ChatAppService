@@ -1,7 +1,7 @@
-﻿using ChatApp.Web.Storage;
+﻿using ChatApp.Web.Storage.Profiles;
 using ChatApp.Web.Dtos;
 
-namespace ChatApp.Web.Service;
+namespace ChatApp.Web.Service.Profiles;
 
 public class ProfileService: IProfileService
 {

@@ -1,11 +1,30 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-	<s:String x:Key="/Default/Environment/Highlighting/HighlightingSourceSnapshotLocation/@EntryValue">C:\Users\Karima\AppData\Local\JetBrains\Rider2022.3\resharper-host\temp\Rider\vAny\CoverageData\_chat-app-karima-lea.1905644518\Snapshot\snapshot.utdcvr</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=595a00f3_002D323d_002D4cb3_002D9c5d_002D33c876a8a396/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="GetProfile" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+	<s:String x:Key="/Default/Environment/Highlighting/HighlightingSourceSnapshotLocation/@EntryValue">C:\Users\Karima\AppData\Local\JetBrains\Rider2022.3\resharper-host\temp\Rider\vAny\CoverageData\_chat-app-karima-lea.695799667\Snapshot\snapshot.utdcvr</s:String>
+<<<<<<< HEAD
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=595a00f3_002D323d_002D4cb3_002D9c5d_002D33c876a8a396/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="GetProfile" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;TestAncestor&gt;
     &lt;TestId&gt;xUnit::4EFD2B11-0694-4A9C-BEE1-6BFAC9083862::net6.0::ChatApp.Web.Tests.Controllers.ImageControllerTests.AddImage_GetImage&lt;/TestId&gt;
+    &lt;TestId&gt;xUnit::4EFD2B11-0694-4A9C-BEE1-6BFAC9083862::net6.0::ChatApp.Web.Tests.Controllers.ImageControllerTests.AddImage_GetImage_Error&lt;/TestId&gt;
   &lt;/TestAncestor&gt;
 &lt;/SessionState&gt;</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=8e11a621_002Da653_002D425e_002Dac4b_002D9411aac0113e/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="AddProfile" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=62496e40_002D63a2_002D4128_002Dba48_002D58ed57d471a2/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="All tests from Solution" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;
   &lt;Solution /&gt;
+=======
+	
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=595a00f3_002D323d_002D4cb3_002D9c5d_002D33c876a8a396/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="GetProfile" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;xUnit::4EFD2B11-0694-4A9C-BEE1-6BFAC9083862::net6.0::ChatApp.Web.Tests.Controllers.ImageControllerTests.AddImage_GetImage&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::4EFD2B11-0694-4A9C-BEE1-6BFAC9083862::net6.0::ChatApp.Web.Tests.Controllers.ImageControllerTests.AddImage_GetImage_Error&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::4EFD2B11-0694-4A9C-BEE1-6BFAC9083862::net6.0::ChatApp.Web.Tests.Controllers.ConversationsControllerTests.AddConversation&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::4EFD2B11-0694-4A9C-BEE1-6BFAC9083862::net6.0::ChatApp.Web.Tests.Controllers.ConversationsControllerTests.AddConversation_UserNotFound&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
-</wpf:ResourceDictionary>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=5d2103ca_002Df8e0_002D44cf_002D9188_002Db1e94434e471/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="GetConversations" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;xUnit::4EFD2B11-0694-4A9C-BEE1-6BFAC9083862::net6.0::ChatApp.Web.Tests.Controllers.ConversationsControllerTests&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=62496e40_002D63a2_002D4128_002Dba48_002D58ed57d471a2/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="All tests from Solution" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;Solution /&gt;&#xD;
+>>>>>>> 79e3c13e42e1634beedf1eeafccf71bfa8fccf95
+&lt;/SessionState&gt;</s:String></wpf:ResourceDictionary>
