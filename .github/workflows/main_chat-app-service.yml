@@ -36,12 +36,6 @@ jobs:
       - name: dotnet publish
         run: dotnet publish ChatApp.Web/ChatApp.Web.csproj -c Release --no-build -o ${{env.AZURE_WEBAPP_PACKAGE_PATH}}/myapp
 
-      - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v2
-        with:
-          name: .net-app
-          path: ${{env.AZURE_WEBAPP_PACKAGE_PATH}}/myapp
-
   deploy:
     runs-on: ubuntu-latest
     needs: build
@@ -57,4 +51,4 @@ jobs:
           app-name: 'chat-app-service'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_1728C4DC21A14608B7799B9C301A0FA4 }}
-          package: .
+          package: "${{ env.AZURE_WEBAPP_PACKAGE_PATH }}"
