@@ -14,7 +14,10 @@
       "launchBrowser": true,
       "applicationUrl": "https://localhost:7093;http://localhost:5249",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "Cosmos": "AccountEndpoint=https://chat-app-service.documents.azure.com:443/;AccountKey=I5ZPfcjf0WtqpFleDMY094g7Ne1MvowOge37UfHFi1uSrq2gnHQNVPraMHBo4i37M5bRDQsd2IruACDbu5fYvw==;",
+        "Blob": "DefaultEndpointsProtocol=https;AccountName=chatappstorageacc;AccountKey=Ma4IrL0Utv17+TLQPwIrvm3QOdlC0WKAhVybaf0sMlZ537lF8+BQL4zVxTT8QmooFlie2EC1D83s+AStuxcGFw==;EndpointSuffix=core.windows.net",
+        "ServiceBus": "Endpoint=sb://karima-lea-chat-app-service-bus.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=vV+vr/i5D1+9I5ZnIpiX2stRfyvHmts5S+ASbG8NlF8="
       }
     },
     "IIS Express": {

@@ -10,12 +10,12 @@ public class ImageService : IImageService
     {
         _imageStore = imageStore;
     }
-    public Task<UploadImageResponse?> UpsertProfilePicture(UploadImageRequest picture)
+    public Task<UploadImageResponse> UpsertProfilePicture(UploadImageRequest picture)
     {
         return _imageStore.UpsertProfilePicture(picture);
     }
 
-    public Task<byte[]?> GetProfilePicture(string id)
+    public Task<byte[]> GetProfilePicture(string id)
     {
         return _imageStore.GetProfilePicture(id);
     }

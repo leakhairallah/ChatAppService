@@ -21,21 +21,19 @@ public class ConversationStore: IConversationStore
 
     public async Task<string?> AddConversation(string conversationId, long time)
     {
-        using (_logger.BeginScope("Creating conversation with conversation Id {conversationId}...", conversationId))
+        _logger.LogInformation("Creating conversation with conversation Id {conversationId}...", conversationId);
+        try
         {
-            try
-            {
-                var conversation = ToConversation(conversationId, time);
+            var conversation = ToConversation(conversationId, time);
 
-                await CosmosContainer.CreateItemAsync(conversation);
+            await CosmosContainer.CreateItemAsync(conversation);
 
-                return conversationId;
-            }
+            return conversationId;
+        }
 
-            catch (CosmosException e)
-            {
-                return null;
-            }
+        catch (CosmosException e)
+        {
+            return null;
         }
     }
 
@@ -63,36 +61,35 @@ public class ConversationStore: IConversationStore
     
     public async Task<ConversationEntity?> GetConversation(string id)
     {
-        using (_logger.BeginScope("Getting conversations with user Id {userId}...", id))
+        _logger.LogInformation("Getting conversations with user Id {userId}...", id);
+        try
         {
-            try
+            QueryDefinition queryDefinition = new QueryDefinition("SELECT * FROM c WHERE c.id = @id")
+                .WithParameter("@id", id);
+
+            using FeedIterator<ConversationEntity> feedIterator =
+                CosmosContainer.GetItemQueryIterator<ConversationEntity>(queryDefinition);
+
+            if (feedIterator.HasMoreResults)
             {
-                QueryDefinition queryDefinition = new QueryDefinition("SELECT * FROM c WHERE c.id = @id")
-                    .WithParameter("@id", id);
-
-                using FeedIterator<ConversationEntity> feedIterator =
-                    CosmosContainer.GetItemQueryIterator<ConversationEntity>(queryDefinition);
-
-                if (feedIterator.HasMoreResults)
+                FeedResponse<ConversationEntity> response = await feedIterator.ReadNextAsync();
+                foreach (ConversationEntity item in response)
                 {
-                    FeedResponse<ConversationEntity> response = await feedIterator.ReadNextAsync();
-                    foreach (ConversationEntity item in response)
-                    {
-                        return item;
-                    }
+                    return item;
                 }
+            }
+            return null;
+        }
+        catch (CosmosException e)
+        {
+            if (e.StatusCode == HttpStatusCode.NotFound)
+            {
                 return null;
             }
-            catch (CosmosException e)
-            {
-                if (e.StatusCode == HttpStatusCode.NotFound)
-                {
-                    return null;
-                }
 
-                throw;
-            }
+            throw;
         }
+        
     }
     
 

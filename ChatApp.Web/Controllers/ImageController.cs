@@ -8,12 +8,12 @@ namespace ChatApp.Web.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class ImageController : ControllerBase
+public class ImagesController : ControllerBase
 {
     private readonly IImageService _imageService;
-    private readonly ILogger<ImageController> _logger;
+    private readonly ILogger<ImagesController> _logger;
 
-    public ImageController(IImageService imageService, ILogger<ImageController> logger)
+    public ImagesController(IImageService imageService, ILogger<ImagesController> logger)
     {
         _imageService = imageService;
         _logger = logger;
@@ -22,43 +22,39 @@ public class ImageController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<UploadImageResponse>> UploadImage([FromForm] UploadImageRequest request)
     {
-        using (_logger.BeginScope("Calling image service..."))
+        _logger.LogInformation("Calling image service for uploading image...");
+        try
         {
-            try
-            {
-                var response = await _imageService.UpsertProfilePicture(request);
-                if (response == null)
-                {
-                    return StatusCode(502, "Could not upload profile picture.");
-                }
-            
-                var uploadImageResponse = new UploadImageResponse(response.Id);
-                return Ok(uploadImageResponse);
-            }
-            catch (InvalidPictureException e)
-            {
-                return BadRequest(e.Message);
-            }
+            var response = await _imageService.UpsertProfilePicture(request);
+            return Ok(response);
+        }
+        catch (InvalidPictureException e)
+        {
+            return BadRequest(e.Message);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(502, e.Message);
         }
     }
 
     
-    [HttpGet("{username}")]
+    [HttpGet("{id}")]
     public async Task<IActionResult> DownloadImage(string id)
     {
-        using (_logger.BeginScope("Calling image service..."))
+        _logger.LogInformation("Calling image service for downloading image...");
+        try
         {
-            try
-            {
-                var image = await _imageService.GetProfilePicture(id);
-                FileContentResult file = new FileContentResult(image, "image/jpeg");
-
-                return Ok(file);
-            }
-            catch (Exception e)
-            {
-                return StatusCode(502, "Could not download image.");
-            }
+            var image = await _imageService.GetProfilePicture(id);
+            return Ok(image);
+        }
+        catch (NotFoundException e)
+        {
+            return NotFound(e.Message);
+        }
+        catch (Exception)
+        {
+            return StatusCode(502, "Could not download image.");
         }
     }
 }

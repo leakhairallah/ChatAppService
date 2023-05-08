@@ -3,6 +3,14 @@
 
 name: Build and deploy ASP.Net Core app to Azure Web App - chat-app-service
 
+env:    # set this to the name of your Azure Web App
+  AZURE_WEBAPP_PACKAGE_PATH: './ChatApp.Web'      # set this to the path to your web app project, defaults to the repository root
+  DOTNET_VERSION: '6.0.x'
+  Cosmos: ${{ secrets.COSMOS }}
+  Blob: ${{ secrets.BLOB }}
+  ServiceBus: ${{ secrets.SERVICEBUS }}
+  
+
 on:
   push:
     branches:
@@ -24,9 +32,12 @@ jobs:
 
       - name: Build with dotnet
         run: dotnet build --configuration Release
+        
+      - name: Testing the code
+        run: dotnet test --verbosity normal
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish ChatApp.Web/ChatApp.Web.csproj -c Release --no-build -o ${{env.AZURE_WEBAPP_PACKAGE_PATH}}/myapp
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v2
