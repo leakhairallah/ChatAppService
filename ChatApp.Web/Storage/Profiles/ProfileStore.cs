@@ -26,47 +26,43 @@ public class ProfileStore : IProfileStore
 
     public async Task UpsertProfile(Profile profile)
     {
-        using (_logger.BeginScope("Checking for exceptions..."))
+        _logger.LogInformation("Checking for exceptions...");
+        if (profile == null ||
+            string.IsNullOrWhiteSpace(profile.Username) ||
+            string.IsNullOrWhiteSpace(profile.FirstName) ||
+            string.IsNullOrWhiteSpace(profile.LastName) ||
+            string.IsNullOrWhiteSpace(profile.ProfilePictureId)
+           )
         {
-            if (profile == null ||
-                string.IsNullOrWhiteSpace(profile.Username) ||
-                string.IsNullOrWhiteSpace(profile.FirstName) ||
-                string.IsNullOrWhiteSpace(profile.LastName) ||
-                string.IsNullOrWhiteSpace(profile.ProfilePictureId)
-               )
-            {
-                throw new InvalidProfileException($"Invalid profile {profile}", HttpStatusCode.BadRequest);
-            }
+            throw new InvalidProfileException($"Invalid profile {profile}", HttpStatusCode.BadRequest);
+        }
 
-            try
-            {
-                _logger.LogInformation("Creating profile for {username}", profile.Username);
-                await CosmosContainer.UpsertItemAsync(ToEntity(profile));
-            }
-            catch (CosmosException)
-            {
-                throw new Exception($"Failed to create profile for user {profile.Username}");
-            }
+        try
+        {
+            _logger.LogInformation("Updating profile for {username}", profile.Username);
+            await CosmosContainer.UpsertItemAsync(ToEntity(profile));
+        }
+        catch (CosmosException)
+        {
+            throw new Exception($"Failed to create profile for user {profile.Username}");
         }
     }
 
     public async Task AddProfile(Profile profile)
     {
-        using (_logger.BeginScope("Checking for exceptions..."))
+        _logger.LogInformation("Checking for exceptions...");
+        try
         {
-            try
-            {
-                ValidateProfile(profile);
+            ValidateProfile(profile);
                 
-                _logger.LogInformation("Creating profile...");
-                await CosmosContainer.CreateItemAsync(ToEntity(profile));
-            }
-            catch (CosmosException e)
+            _logger.LogInformation("Creating profile for user {username}...", profile.Username);
+            await CosmosContainer.CreateItemAsync(ToEntity(profile));
+        }
+        catch (CosmosException e)
+        {
+            if (e.StatusCode == HttpStatusCode.Conflict)
             {
-                if (e.StatusCode == HttpStatusCode.Conflict)
-                {
-                    throw new ConflictException($"with username {profile.Username}", "Profile", HttpStatusCode.NotFound);
-                }
+                throw new ConflictException($"with username {profile.Username}", "Profile", HttpStatusCode.NotFound);
             }
         }
     }
@@ -85,30 +81,28 @@ public class ProfileStore : IProfileStore
 
     public async Task<Profile?> GetProfile(string username)
     {
-        using (_logger.BeginScope("Getting profile of {username}", username))
+        _logger.LogInformation("Getting profile of {username}", username);
+        try
         {
-            try
-            {
-                var entity = await CosmosContainer.ReadItemAsync<ProfileEntity>(
-                    id: username,
-                    partitionKey: new PartitionKey(username),
-                    new ItemRequestOptions
-                    {
-                        ConsistencyLevel = ConsistencyLevel.Session
-                    }
-                );
-                return ToProfile(entity);
-            }
-
-            catch (CosmosException e)
-            {
-                if (e.StatusCode == HttpStatusCode.NotFound)
+            var entity = await CosmosContainer.ReadItemAsync<ProfileEntity>(
+                id: username,
+                partitionKey: new PartitionKey(username),
+                new ItemRequestOptions
                 {
-                    return null;
+                    ConsistencyLevel = ConsistencyLevel.Session
                 }
+            );
+            return ToProfile(entity);
+        }
 
-                throw;
+        catch (CosmosException e)
+        {
+            if (e.StatusCode == HttpStatusCode.NotFound)
+            {
+                return null;
             }
+
+            throw;
         }
     }
 

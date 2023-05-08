@@ -16,52 +16,57 @@ public class ImageStore : IImageStore
         _logger = logger;
     }
 
-    public async Task<UploadImageResponse?> UpsertProfilePicture(UploadImageRequest profilePicture)
+    public async Task<UploadImageResponse> UpsertProfilePicture(UploadImageRequest profilePicture)
     {
-        using (_logger.BeginScope("Checking for exceptions..."))
+        _logger.LogInformation("Checking for exceptions...");
+        if (profilePicture == null || profilePicture.File.Length == 0)
         {
-            if (profilePicture == null || profilePicture.File.Length == 0)
-            {
-                throw new InvalidPictureException($"Invalid profile picture {profilePicture}", HttpStatusCode.BadRequest);
-            }
+            throw new InvalidPictureException($"Invalid profile picture {profilePicture}", HttpStatusCode.BadRequest);
+        }
 
-            try
-            {
-                _logger.LogInformation("Uploading image...");
-                using var stream = new MemoryStream();
-                await profilePicture.File.CopyToAsync(stream);
-                stream.Position = 0;
+        try
+        {
+            _logger.LogInformation("Uploading image...");
+            using var stream = new MemoryStream();
+            await profilePicture.File.CopyToAsync(stream);
+            stream.Position = 0;
 
-                string imageId = Guid.NewGuid().ToString();
+            string imageId = Guid.NewGuid().ToString();
+            
+            await _blobContainerClient.UploadBlobAsync(imageId, stream);
 
-
-                await _blobContainerClient.UploadBlobAsync(imageId, stream);
-                return new UploadImageResponse(imageId);
-            }
-            catch (Exception e)
-            {
-                throw new Exception(e.Message);
-            }
+            return new UploadImageResponse(imageId);
+        }
+        catch (Exception e)
+        {
+            throw new Exception(e.Message);
         }
     }
-    public async Task<byte[]?> GetProfilePicture(string id)
+    public async Task<byte[]> GetProfilePicture(string id)
     {
-        using (_logger.BeginScope("Getting profile picture..."))
+        _logger.LogInformation("Getting profile picture...");
+        try
         {
-            try
-            {
-                var response = await _blobContainerClient.GetBlobClient(id).DownloadAsync();
+            var response = await _blobContainerClient.GetBlobClient(id).DownloadAsync();
 
-                await using var memoryStream = new MemoryStream();
-                await response.Value.Content.CopyToAsync(memoryStream);
-                var bytes = memoryStream.ToArray();
+            await using var memoryStream = new MemoryStream();
+            await response.Value.Content.CopyToAsync(memoryStream);
+            var bytes = memoryStream.ToArray();
 
-                return bytes;
-            }
-            catch (Exception)
+            return bytes;
+        }
+        catch (RequestFailedException e)
+        {
+            if (e.Status == 404)
             {
-                throw new Exception($"Failed to get profile picture.");
+                throw new NotFoundException($"with id {id}", "Image", HttpStatusCode.NotFound);
             }
+
+            throw;
+        }
+        catch (Exception)
+        {
+            throw new Exception($"Failed to get profile picture.");
         }
     }
 
@@ -76,7 +81,7 @@ public class ImageStore : IImageStore
         {
             if (e.Status == 404)
             {
-                throw new Exception("Invalid id");
+                throw new Exception("Invalid id.");
             }
 
             throw;
