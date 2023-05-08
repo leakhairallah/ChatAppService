@@ -25,26 +25,20 @@ builder.Services.AddSwaggerGen();
 builder.Configuration.AddEnvironmentVariables();
 builder.Services.AddApplicationInsightsTelemetry();
 
-// Add Configuration
-// builder.Services.Configure<CosmosSettings>(options =>
-// {
-//     options.ConnectionString = Environment.GetEnvironmentVariable("Cosmos");
-// });
-// builder.Services.Configure<BlobSettings>(options =>
-// {
-//     options.ConnectionString = Environment.GetEnvironmentVariable("Blob");
-//     options.BlobContainerName = "profileimages";
-// });
-// builder.Services.Configure<ServiceBusSettings>(options =>
-// {
-//     options.ConnectionString = Environment.GetEnvironmentVariable("ServiceBus");
-//     options.SendMessageQueueName = "messagequeue";
-// });
-
-builder.Services.Configure<CosmosSettings>(builder.Configuration.GetSection("Cosmos"));
-builder.Services.Configure<CosmosSettings>(builder.Configuration.GetSection("Blob"));
-builder.Services.Configure<CosmosSettings>(builder.Configuration.GetSection("ServiceBus"));
-
+builder.Services.Configure<CosmosSettings>(options =>
+{
+    options.ConnectionString = Environment.GetEnvironmentVariable("Cosmos");
+});
+builder.Services.Configure<BlobSettings>(options =>
+{
+    options.ConnectionString = Environment.GetEnvironmentVariable("Blob");
+    options.BlobContainerName = "profileimages";
+});
+builder.Services.Configure<ServiceBusSettings>(options =>
+{
+    options.ConnectionString = Environment.GetEnvironmentVariable("ServiceBus");
+    options.SendMessageQueueName = "messagequeue";
+});
 
 // Add Services
 builder.Services.AddSingleton<IProfileStore, ProfileStore>();
