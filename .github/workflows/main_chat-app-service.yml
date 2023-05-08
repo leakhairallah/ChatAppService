@@ -57,4 +57,4 @@ jobs:
           app-name: 'chat-app-service'
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_1728C4DC21A14608B7799B9C301A0FA4 }}
-          package: .
+          package: ./.dotnet/myapp
